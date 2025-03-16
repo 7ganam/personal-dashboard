@@ -1,0 +1,26 @@
+meta {
+  name: calculate calories
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}/api/ai/caloriesCalc
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "data": [
+      {
+        "id": "e9716f06-8f3a-4640-a53f-1e1e033fc04d",
+        "meal": "250gm cooked rice "
+      },
+      {
+        "id": "e9716f06-8f3a-4640-a53f-1e1e033fc04d",
+        "meal": "100gm 3eesh 2byad"
+      }
+    ]
+  }
+}
