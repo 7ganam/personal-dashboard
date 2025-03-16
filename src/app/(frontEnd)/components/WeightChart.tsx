@@ -21,6 +21,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
+import { formatDate } from "../utils/utils";
 type Props = {};
 
 const WeightChart = (props: Props) => {
@@ -251,11 +252,6 @@ const WeightChart = (props: Props) => {
 export default WeightChart;
 
 //#region ======================= Helper Functions =========================
-const formatDate = (date: any) => {
-  // Convert to ISO string format for proper date handling
-  const date2 = new Date(date);
-  return date2.toISOString().split("T")[0];
-};
 
 const calculateXandYAxis = (sortedWeightData: any, startDate: any) => {
   const formattedDates = sortedWeightData.map((item: any) =>

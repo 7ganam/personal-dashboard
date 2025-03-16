@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   Cell,
+  Area,
 } from "recharts";
 import { timeFormat } from "d3-time-format";
 
@@ -21,9 +22,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
-type Props = {};
+import { formatDate } from "../utils/utils";
+import { fetchWorkData } from "../apiRequests/work-requests";
 
-const WorkChart = (props: Props) => {
+const WorkChart = () => {
+  //#region =============================fetching data =========================================
+
   // Get first day of current month
   const firstDayOfMonth = new Date();
   firstDayOfMonth.setDate(1);
@@ -43,47 +47,11 @@ const WorkChart = (props: Props) => {
   const [reloadCount, setReloadCount] = useState(0);
 
   useEffect(() => {
-    async function fetchWorkPages(startDate: string, endDate: string) {
-      setIsLoading(true);
-      let hasMore = true;
-      let nextCursor = undefined;
-      let allResults: any[] = [];
-      while (hasMore) {
-        try {
-          const response: any = await fetch("/api/notion/work", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              startDate,
-              endDate,
-              requestNextCursor: nextCursor,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch data");
-          }
-          const result = await response.json();
-          allResults = [...allResults, ...result.data];
-          hasMore = result.hasMore;
-          nextCursor = result.nextCursor;
-          setWork(allResults);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setErrorWork(
-            error instanceof Error ? error.message : "An error occurred"
-          );
-          setWork([]);
-        } finally {
-        }
-      }
-      setIsLoading(false);
-    }
-
-    fetchWorkPages(startDate, endDate);
+    fetchWorkData(startDate, endDate, setIsLoading, setWork, setErrorWork);
   }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
+  //#endregion
+
+  //#region =============================prepare graph data =========================================
 
   const sortedWorkData = work.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
@@ -102,8 +70,6 @@ const WorkChart = (props: Props) => {
     };
   });
 
-  console.log(workData);
-  // Custom tick formatter for x-axis
   const formatXAxis = timeFormat("%d-%m-%y");
 
   // Add this function to generate month reference lines
@@ -138,6 +104,9 @@ const WorkChart = (props: Props) => {
 
     return referenceLines;
   };
+  //#endregion
+
+  //#region =============================render =========================================
 
   return (
     <div className="w-full h-full ">
@@ -223,7 +192,14 @@ const WorkChart = (props: Props) => {
             <Tooltip
               labelFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
             />
-
+            <Area
+              type="monotone"
+              dataKey="goal"
+              fill="#FF0A00"
+              stroke="none"
+              isAnimationActive={false}
+              baseValue={0}
+            />
             <Bar
               dataKey="uv"
               barSize={20}
@@ -231,10 +207,7 @@ const WorkChart = (props: Props) => {
               isAnimationActive={false}
             >
               {workData.map((entry: any, index: any) => (
-                <Cell
-                  key={`cell-${entry?.name}`}
-                  fill={entry.uv < 8 ? "#FF0000" : "#4CAF50"}
-                />
+                <Cell key={`cell-${entry?.name}`} fill={"#4CAF50"} />
               ))}
             </Bar>
             <Line
@@ -251,18 +224,12 @@ const WorkChart = (props: Props) => {
       </div>
     </div>
   );
+  //#endregion
 };
 
 export default WorkChart;
 
 //#region ======================= Helper Functions =========================
-const formatDate = (date: string) => {
-  const date2 = new Date(date);
-  return `${date2.getFullYear()}-${String(date2.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(date2.getDate()).padStart(2, "0")}`;
-};
 
 const calculateXandYAxis = (sortedWorkData: any, startDate: string) => {
   console.log("--------------------------------");

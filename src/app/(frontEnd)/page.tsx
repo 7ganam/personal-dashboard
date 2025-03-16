@@ -1,15 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import * as React from "react";
-import { BarChart } from "@mui/x-charts/BarChart";
-import { LineChart } from "@mui/x-charts/LineChart";
+
 import DietChart from "./components/DietChart";
 import { Paper } from "@mui/material";
 import WeightChart from "./components/WeightChart";
 import SleepChart from "./components/SleepChart";
 import WorkChart from "./components/WorkChart";
 import TStrike from "./components/TStrike/TStrike";
-
+import DayViewCard from "./components/dayView/DayViewCard";
 const databases = {
   thoughts: "98180a95daa943efba244291cebf6547",
   clips: "2544ef9a027d42568da42018d5216390",
@@ -90,7 +89,9 @@ export default function NotionPage() {
   return (
     <div>
       <h1>Notion Database Entries</h1>
-
+      <div className=" p-10 flex flex-row gap-10 w-[700px] bg-gray-100 rounded-md m-10">
+        <DayViewCard />
+      </div>
       <div className="grid grid-cols-4 gap-4">
         <a
           href="https://www.notion.so/2544ef9a027d42568da42018d5216390?v=7c39fd3a04d24d94adcb015d306d3519"

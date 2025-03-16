@@ -21,6 +21,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
+import { formatDate } from "../utils/utils";
 type Props = {};
 
 const SleepChart = (props: Props) => {
@@ -256,13 +257,6 @@ const SleepChart = (props: Props) => {
 export default SleepChart;
 
 //#region ======================= Helper Functions =========================
-const formatDate = (date: string) => {
-  const date2 = new Date(date);
-  return `${date2.getFullYear()}-${String(date2.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(date2.getDate()).padStart(2, "0")}`;
-};
 
 const calculateXandYAxis = (sortedSleepData: any, startDate: string) => {
   console.log("--------------------------------");

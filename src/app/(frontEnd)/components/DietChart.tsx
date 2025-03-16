@@ -21,6 +21,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
+import { formatDate } from "../utils/utils";
+import { fetchDietData } from "../apiRequests/diet-requests";
+
 type Props = {};
 
 const DietChart = (props: Props) => {
@@ -41,48 +44,8 @@ const DietChart = (props: Props) => {
   const [errorDiet, setErrorDiet] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
-
   useEffect(() => {
-    async function fetchDietPages(startDate: string, endDate: string) {
-      setIsLoading(true);
-      let hasMore = true;
-      let nextCursor = undefined;
-      let allResults: any[] = [];
-      while (hasMore) {
-        try {
-          const response: any = await fetch("/api/notion/diet", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              startDate,
-              endDate,
-              requestNextCursor: nextCursor,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch data");
-          }
-          const result = await response.json();
-          allResults = [...allResults, ...result.data];
-          hasMore = result.hasMore;
-          nextCursor = result.nextCursor;
-          setDiet(allResults);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setErrorDiet(
-            error instanceof Error ? error.message : "An error occurred"
-          );
-          setDiet([]);
-        } finally {
-        }
-      }
-      setIsLoading(false);
-    }
-
-    fetchDietPages(startDate, endDate);
+    fetchDietData(startDate, endDate, setIsLoading, setDiet, setErrorDiet);
   }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
 
   const sortedDietData = diet.sort((a: any, b: any) => {
@@ -252,11 +215,6 @@ const DietChart = (props: Props) => {
 export default DietChart;
 
 //#region ======================= Helper Functions =========================
-const formatDate = (date: any) => {
-  // Convert to ISO string format for proper date handling
-  const date2 = new Date(date);
-  return date2.toISOString().split("T")[0];
-};
 
 const calculateXandYAxis = (sortedDietData: any, startDate: any) => {
   const uniqueFormattedDates = [
