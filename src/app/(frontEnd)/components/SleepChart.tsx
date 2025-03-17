@@ -255,12 +255,34 @@ const SleepChart = (props: Props) => {
               textAnchor="end"
               height={90}
               dy={10}
-              dx={20}
+              dx={-4}
               interval={0}
               tickMargin={0}
               tickSize={8}
               tickLine={{ transform: "translate(20, 0)" }}
-              tick={{ transform: "translate(20, 0)" }}
+              tick={(props) => {
+                const { x, y, payload } = props;
+                const date = new Date(payload.value);
+                const isToday =
+                  date.toDateString() === new Date().toDateString();
+
+                return (
+                  <g transform={`translate(${x + 20},${y})`}>
+                    <text
+                      x={0}
+                      y={0}
+                      dy={16}
+                      textAnchor="end"
+                      fill={isToday ? "#4CAF50" : "#666666"}
+                      transform="rotate(-90) translate(-5, -28)"
+                      className={"text-sm" + isToday ? " font-bold" : ""}
+                      fontFamily="monospace"
+                    >
+                      {formatXAxis(date)}
+                    </text>
+                  </g>
+                );
+              }}
             />
             <YAxis
               label={{

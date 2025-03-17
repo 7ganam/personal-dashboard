@@ -10,10 +10,6 @@ import WorkChart from "./components/WorkChart";
 import TStrike from "./components/TStrike/TStrike";
 import DayViewCard from "./components/dayView/DayViewCard";
 import SportsStrike from "./components/SportsStrike/SportsStrike";
-const databases = {
-  thoughts: "98180a95daa943efba244291cebf6547",
-  clips: "2544ef9a027d42568da42018d5216390",
-};
 
 export default function NotionPage() {
   //#region =======================fetch the thoughts==========================
