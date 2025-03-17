@@ -22,13 +22,13 @@ export const fetchTDataNotion = async (
         {
           property: "Date",
           date: {
-            on_or_after: startDate,
+            on_or_after: startDate + "T00:00:00.000+02:00",
           },
         },
         {
           property: "Date",
           date: {
-            on_or_before: endDate,
+            on_or_before: endDate + "T23:59:59.999+02:00",
           },
         },
       ],

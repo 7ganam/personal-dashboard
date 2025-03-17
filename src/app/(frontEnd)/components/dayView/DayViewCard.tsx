@@ -2,6 +2,8 @@ import React from "react";
 import CaloriesBarContainer from "./components/CaloriesBar/CaloriesBarContainer";
 import WorkBarContainer from "./components/WorkBar/WorkBarContainer";
 import SleepBarContainer from "./components/SleepBar/SleepBarContainer";
+import TStrikeBox from "./components/TStrike/TStrikeBox";
+import SportsStrikeBox from "./components/SportsStrike/SportsStrikeBox";
 type Props = {};
 
 function DayViewCard({}: Props) {
@@ -10,6 +12,14 @@ function DayViewCard({}: Props) {
       <CaloriesBarContainer />
       <WorkBarContainer />
       <SleepBarContainer />
+      <div className="mt-4 w-full flex justify-start items-center gap-4 p-4 bg-slate-200 border border-slate-300 rounded-md ">
+        <div className="w-[100px] aspect-square">
+          <TStrikeBox />
+        </div>
+        <div className="w-[100px] aspect-square">
+          <SportsStrikeBox />
+        </div>
+      </div>
     </div>
   );
 }
