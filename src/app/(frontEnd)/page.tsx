@@ -89,33 +89,7 @@ export default function NotionPage() {
       <div className=" p-10 flex flex-row gap-10 w-[700px] bg-gray-100 rounded-md m-10">
         <DayViewCard />
       </div>
-      <div className="grid grid-cols-4 gap-4">
-        <a
-          href="https://www.notion.so/2544ef9a027d42568da42018d5216390?v=7c39fd3a04d24d94adcb015d306d3519"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cursor-pointer"
-        >
-          <div className="flex flex-col gap-4 bg-gray-100 p-4 rounded-md">
-            <div>Number of ongoing thoughts</div>
-            <div className="text-8xl font-bold w-full text-center">
-              {ongoingThoughts.length}
-            </div>
-          </div>
-        </a>
-        <div className="flex flex-col gap-4 bg-gray-100 p-4 rounded-md">
-          <div>webclips</div>
-          <div className="text-8xl font-bold">{unprocessedClips.length}</div>
-        </div>
-        <div className="flex flex-col gap-4 bg-gray-100 p-4 rounded-md">
-          <div>Placeholder 3</div>
-          <div className="text-8xl font-bold">0</div>
-        </div>
-        <div className="flex flex-col gap-4 bg-gray-100 p-4 rounded-md">
-          <div>Placeholder 4</div>
-          <div className="text-8xl font-bold">0</div>
-        </div>
-      </div>
+
       <div className="w-full p-10 flex flex-row gap-10">
         <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
           <DietChart caloriesLimit={1800} />
