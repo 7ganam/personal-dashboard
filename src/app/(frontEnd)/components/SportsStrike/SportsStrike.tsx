@@ -3,9 +3,9 @@ import { Calendar } from "./components/ui/calendar";
 import React, { useEffect, useState } from "react";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import { formatDateFromIsoString } from "../../utils/utils";
-import { fetchTStrikeData } from "../../apiRequests/t-requests";
+import { fetchSportsStrikeData } from "../../apiRequests/sports-requests";
 
-const TStrike = (props: any) => {
+const SportsStrike = (props: any) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
@@ -32,27 +32,27 @@ const TStrike = (props: any) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
-  const [t, setT] = useState<any>([]);
-  const [errorT, setErrorT] = useState<string | null>(null);
+  const [sports, setSports] = useState<any>([]);
+  const [errorSports, setErrorSports] = useState<string | null>(null);
 
-  const { tDates, tvDates, freeDates } = getDatesFromT(t);
+  const { sportsDates } = getDatesFromSports(sports);
 
   useEffect(() => {
-    fetchTStrikeData(
+    fetchSportsStrikeData(
       formattedFirstDayOfMonth,
       formattedLastDayOfMonth,
       setIsLoading,
-      setT,
-      setErrorT
+      setSports,
+      setErrorSports
     );
-  }, [formattedFirstDayOfMonth, formattedLastDayOfMonth, reloadCount]); // Re-fetch when dates change
+  }, [formattedFirstDayOfMonth, formattedLastDayOfMonth, reloadCount]);
   //#endregion
 
   //#region =============================render =========================================
   return (
     <div className="w-full h-full">
       <div className="mb-4 flex gap-4  justify-end px-0 w-full">
-        <div className="text-2xl font-bold grow">T strike</div>
+        <div className="text-2xl font-bold grow">Sports strike</div>
         <Button
           variant="contained"
           color="primary"
@@ -69,7 +69,6 @@ const TStrike = (props: any) => {
             <Box
               sx={{
                 display: "flex",
-
                 p: 1,
                 borderRadius: 1,
                 boxShadow: 3,
@@ -85,16 +84,12 @@ const TStrike = (props: any) => {
           onSelect={setDate}
           onMonthChange={setSelectedMonth}
           modifiers={{
-            tv: tvDates,
-            t: tDates,
-            gg: freeDates,
+            sports: sportsDates,
           }}
           modifiersClassNames={{
-            tv: "bg-red-500",
-            t: "bg-green-100",
-            gg: "bg-green-500",
+            sports: "!bg-green-500",
           }}
-          className="rounded-md border"
+          className="rounded-md border [&_.rdp-day_button.rdp-day_today]:bg-green-500"
         />
       </div>
     </div>
@@ -102,40 +97,20 @@ const TStrike = (props: any) => {
   //#endregion
 };
 
-export default TStrike;
-
 //#region =============================helper functions =========================================
 
-const getDatesFromT = (
-  t: any
-): { tDates: Date[]; tvDates: Date[]; freeDates: Date[] } => {
-  const tDates: Date[] = [];
-  const tvDates: Date[] = [];
-  const freeDates: Date[] = [];
+const getDatesFromSports = (sports: any): { sportsDates: Date[] } => {
+  const sportsDates: Date[] = [];
 
-  t.forEach((t: any) => {
-    if (
-      t?.properties?.note?.title[0]?.plain_text
-        .toLocaleLowerCase()
-        .split(" ")[0] === "tv"
-    ) {
-      tvDates.push(new Date(t?.properties?.["Date"]?.date?.start));
-    } else if (
-      t?.properties?.note?.title[0]?.plain_text
-        .toLocaleLowerCase()
-        .split(" ")[0] === "t"
-    ) {
-      tDates.push(new Date(t?.properties?.["Date"]?.date?.start));
-    } else if (
-      t?.properties?.note?.title[0]?.plain_text
-        .toLocaleLowerCase()
-        .split(" ")[0] === "gg"
-    ) {
-      freeDates.push(new Date(t?.properties?.["Date"]?.date?.start));
+  sports.forEach((sport: any) => {
+    if (sport?.properties?.["Date"]?.date?.start) {
+      sportsDates.push(new Date(sport.properties.Date.date.start));
     }
   });
 
-  return { tDates, tvDates, freeDates };
+  return { sportsDates };
 };
 
 //#endregion
+
+export default SportsStrike;

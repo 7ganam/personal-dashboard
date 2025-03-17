@@ -22,15 +22,19 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
-import { formatDate } from "../utils/utils";
+import { formatDateFromIsoString } from "../utils/utils";
 import { fetchWorkData } from "../apiRequests/work-requests";
 
-const WorkChart = () => {
-  //#region =============================fetching data =========================================
+type Props = { workTarget: number };
+
+const WorkChart = (props: Props) => {
+  //#region =============================fetching data==================================
 
   // Get first day of current month
   const firstDayOfMonth = new Date();
   firstDayOfMonth.setDate(1);
+
+  const today = new Date();
 
   // Get tomorrow's date
   const tomorrow = new Date();
@@ -40,7 +44,7 @@ const WorkChart = () => {
     firstDayOfMonth.toISOString().split("T")[0]
   ); // Default to first day of current month
 
-  const [endDate, setEndDate] = useState(tomorrow.toISOString().split("T")[0]); // Default to tomorrow
+  const [endDate, setEndDate] = useState(today.toISOString().split("T")[0]); // Default to tomorrow
   const [work, setWork] = useState<any>([]);
   const [errorWork, setErrorWork] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +55,7 @@ const WorkChart = () => {
   }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
   //#endregion
 
-  //#region =============================prepare graph data =========================================
+  //#region =============================prepare graph data=============================
 
   const sortedWorkData = work.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
@@ -59,14 +63,58 @@ const WorkChart = () => {
     return dateA.getTime() - dateB.getTime();
   });
 
-  const { xAxis, yAxis } = calculateXandYAxis(sortedWorkData, startDate);
+  // Generate array of all dates between start and end date
+  const generateDateRange = (start: string, end: string) => {
+    const dates = [];
 
-  const workData = xAxis.map((date: any) => {
+    // WORKAROUND: Adding a buffer date one day before the start date.
+    // This is needed because Recharts centers bars on their x-axis ticks by default.
+    // which was causing it to intersect with the y-axis labels.
+    const bufferDate = new Date(start);
+    bufferDate.setDate(bufferDate.getDate() - 1);
+    dates.push(formatDateFromIsoString(bufferDate.toISOString()));
+
+    const currentDate = new Date(start);
+    const endDate = new Date(end);
+
+    while (currentDate <= endDate) {
+      dates.push(formatDateFromIsoString(currentDate.toISOString()));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+  };
+
+  const { xAxis: workDates, yAxis: workHoursArray } = calculateXandYAxis(
+    sortedWorkData,
+    startDate
+  );
+
+  // Get all dates in range and create data points
+  const allDates = generateDateRange(startDate, endDate);
+  const workData = allDates.map((date: string) => {
+    const workIndex = workDates.indexOf(date);
+    const hours = workIndex >= 0 ? workHoursArray[workIndex] : 0;
+    const isBufferDate = new Date(date) < new Date(startDate);
+    const isToday = new Date(date).toDateString() === new Date().toDateString();
+    const hasNoData = hours === 0;
+
     return {
-      name: new Date(date).getTime(), // Convert to timestamp for proper date scaling
-      displayDate: date, // Keep original date for display
-      uv: yAxis[xAxis.indexOf(date)],
-      goal: 8,
+      name: new Date(date).getTime(),
+      displayDate: date,
+      uv: isBufferDate ? null : hasNoData && !isToday ? null : hours,
+      goal: isBufferDate ? null : props.workTarget,
+      remaining: isBufferDate
+        ? null
+        : hasNoData && !isToday
+        ? null
+        : hours >= props.workTarget
+        ? 0
+        : props.workTarget - hours,
+      noData: isBufferDate
+        ? null
+        : hasNoData && !isToday
+        ? props.workTarget
+        : null,
     };
   });
 
@@ -106,7 +154,7 @@ const WorkChart = () => {
   };
   //#endregion
 
-  //#region =============================render =========================================
+  //#region =============================render=========================================
 
   return (
     <div className="w-full h-full ">
@@ -181,6 +229,12 @@ const WorkChart = () => {
               textAnchor="end"
               height={90}
               dy={10}
+              dx={20}
+              interval={0}
+              tickMargin={0}
+              tickSize={8}
+              tickLine={{ transform: "translate(20, 0)" }}
+              tick={{ transform: "translate(20, 0)" }}
             />
             <YAxis
               label={{
@@ -192,24 +246,39 @@ const WorkChart = () => {
             <Tooltip
               labelFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
             />
-            <Area
-              type="monotone"
-              dataKey="goal"
-              fill="#FF0A00"
-              stroke="none"
-              isAnimationActive={false}
-              baseValue={0}
-            />
             <Bar
               dataKey="uv"
+              stackId="work"
               barSize={20}
               name="Daily Work"
               isAnimationActive={false}
+              xAxisId={0}
+              offset={20}
             >
               {workData.map((entry: any, index: any) => (
                 <Cell key={`cell-${entry?.name}`} fill={"#4CAF50"} />
               ))}
             </Bar>
+            <Bar
+              dataKey="remaining"
+              stackId="work"
+              barSize={20}
+              name="Remaining Hours"
+              isAnimationActive={false}
+              fill="#FF0A00"
+              xAxisId={0}
+              offset={20}
+            />
+            <Bar
+              dataKey="noData"
+              stackId="work"
+              barSize={20}
+              name="No Data"
+              isAnimationActive={false}
+              fill="#808080"
+              xAxisId={0}
+              offset={20}
+            />
             <Line
               type="monotone"
               dataKey="goal"
@@ -227,16 +296,13 @@ const WorkChart = () => {
   //#endregion
 };
 
-export default WorkChart;
-
-//#region ======================= Helper Functions =========================
+//#region ===============================Helper Functions===============================
 
 const calculateXandYAxis = (sortedWorkData: any, startDate: string) => {
-  console.log("--------------------------------");
   const uniqueFormattedDates: string[] = [
     ...new Set(
       sortedWorkData.map((item: any) =>
-        formatDate(item?.properties?.Date?.date?.start)
+        formatDateFromIsoString(item?.properties?.Date?.date?.start)
       )
     ),
   ] as string[];
@@ -246,92 +312,97 @@ const calculateXandYAxis = (sortedWorkData: any, startDate: string) => {
   );
 
   const y = sortedWorkData.map((item: any) =>
-    formatDate(item?.properties?.Date?.date?.start)
+    formatDateFromIsoString(item?.properties?.Date?.date?.start)
   );
 
-  console.log({ x });
-  console.log({ y });
   const xAxis = uniqueFormattedDates;
 
-  console.log({
-    sortedWorkData: sortedWorkData,
-  });
-  console.log({
-    uniqueFormattedDates: uniqueFormattedDates,
-  });
-
   const yAxis = xAxis.map((date: string) => {
-    const workDataStartingInThisDay = sortedWorkData.filter(
-      (item: any) => formatDate(item?.properties?.Date?.date?.start) === date
-    );
-
-    const workDataStartingInPreviousDay = sortedWorkData.filter((item: any) => {
-      const itemDate: any = new Date(item?.properties?.Date?.date?.start);
-      const compareDate: any = new Date(date);
-      compareDate.setDate(compareDate.getDate() - 1);
-      return formatDate(itemDate) === formatDate(compareDate);
-    });
-
-    //can be multiple items
-    const workDataStartingInThisDayAndEndedInThisDay =
-      workDataStartingInThisDay.filter(
-        (item: any) => formatDate(item?.properties?.Date?.date?.end) === date
-      );
-
-    //should be only one item
-    const workDataStartingInThisDayAndEndedInNextDay =
-      workDataStartingInThisDay.find((item: any) => {
-        const endDate: any = new Date(item?.properties?.Date?.date?.end);
-        const compareDate: any = new Date(date);
-        compareDate.setDate(compareDate.getDate() + 1);
-        return formatDate(endDate) === formatDate(compareDate);
-      });
-
-    //should be only one item
-    const workDataStartingInPreviousDayAndEndedInThisDay =
-      workDataStartingInPreviousDay.find(
-        (item: any) => formatDate(item?.properties?.Date?.date?.end) === date
-      );
-
-    //the part of work data that started yesterday and ended today that falls in today
-    const overlapFromPreviousDay =
-      workDataStartingInPreviousDayAndEndedInThisDay
-        ? new Date(
-            workDataStartingInPreviousDayAndEndedInThisDay.properties.Date.date.end
-          ).getTime() - new Date(date).setHours(0, 0, 0, 0)
-        : 0;
-
-    const overlapFromNextDay = workDataStartingInThisDayAndEndedInNextDay
-      ? new Date(date).setHours(23, 59, 59, 999) -
-        new Date(
-          workDataStartingInThisDayAndEndedInNextDay.properties.Date.date.start
-        ).getTime()
-      : 0;
-
-    const sameDayWorkDuration =
-      workDataStartingInThisDayAndEndedInThisDay.reduce(
-        (acc: any, item: any) => {
-          const startWorkDate = new Date(item?.properties?.Date?.date?.start);
-          const endWorkDate = new Date(item?.properties?.Date?.date?.end);
-          const workDuration = endWorkDate.getTime() - startWorkDate.getTime();
-          return acc + workDuration;
-        },
-        0
-      );
-
-    const totalWorkDuration =
-      sameDayWorkDuration + overlapFromPreviousDay + overlapFromNextDay;
-
-    const workDurationInHours = totalWorkDuration / (1000 * 60 * 60);
+    const workDurationInHours = workDurationInDate(sortedWorkData, date);
     return workDurationInHours;
   });
 
   //if the xAxis doesn't start with startDate add a point with xAxis value as startDate and yAxis value as 0
-  if (!xAxis.includes(formatDate(startDate))) {
-    xAxis.unshift(formatDate(startDate));
+  if (!xAxis.includes(formatDateFromIsoString(startDate))) {
+    xAxis.unshift(formatDateFromIsoString(startDate));
     yAxis.unshift(0);
   }
 
   return { xAxis, yAxis };
 };
+
+const workDurationInDate = (sortedWorkData: any, date: string) => {
+  const workDataStartingInThisDay = sortedWorkData.filter(
+    (item: any) =>
+      formatDateFromIsoString(item?.properties?.Date?.date?.start) === date
+  );
+
+  const workDataStartingInPreviousDay = sortedWorkData.filter((item: any) => {
+    const itemDate: any = new Date(item?.properties?.Date?.date?.start);
+    const compareDate: any = new Date(date);
+    compareDate.setDate(compareDate.getDate() - 1);
+    return (
+      formatDateFromIsoString(itemDate) === formatDateFromIsoString(compareDate)
+    );
+  });
+
+  //can be multiple items
+  const workDataStartingInThisDayAndEndedInThisDay =
+    workDataStartingInThisDay.filter(
+      (item: any) =>
+        formatDateFromIsoString(item?.properties?.Date?.date?.end) === date
+    );
+
+  //should be only one item
+  const workDataStartingInThisDayAndEndedInNextDay =
+    workDataStartingInThisDay.find((item: any) => {
+      const endDate: any = new Date(item?.properties?.Date?.date?.end);
+      const compareDate: any = new Date(date);
+      compareDate.setDate(compareDate.getDate() + 1);
+      return (
+        formatDateFromIsoString(endDate) ===
+        formatDateFromIsoString(compareDate)
+      );
+    });
+
+  //should be only one item
+  const workDataStartingInPreviousDayAndEndedInThisDay =
+    workDataStartingInPreviousDay.find(
+      (item: any) =>
+        formatDateFromIsoString(item?.properties?.Date?.date?.end) === date
+    );
+
+  //the part of work data that started yesterday and ended today that falls in today
+  const overlapFromPreviousDay = workDataStartingInPreviousDayAndEndedInThisDay
+    ? new Date(
+        workDataStartingInPreviousDayAndEndedInThisDay.properties.Date.date.end
+      ).getTime() - new Date(date).setHours(0, 0, 0, 0)
+    : 0;
+
+  const overlapFromNextDay = workDataStartingInThisDayAndEndedInNextDay
+    ? new Date(date).setHours(23, 59, 59, 999) -
+      new Date(
+        workDataStartingInThisDayAndEndedInNextDay.properties.Date.date.start
+      ).getTime()
+    : 0;
+
+  const sameDayWorkDuration = workDataStartingInThisDayAndEndedInThisDay.reduce(
+    (acc: any, item: any) => {
+      const startWorkDate = new Date(item?.properties?.Date?.date?.start);
+      const endWorkDate = new Date(item?.properties?.Date?.date?.end);
+      const workDuration = endWorkDate.getTime() - startWorkDate.getTime();
+      return acc + workDuration;
+    },
+    0
+  );
+
+  const totalWorkDuration =
+    sameDayWorkDuration + overlapFromPreviousDay + overlapFromNextDay;
+
+  const workDurationInHours = totalWorkDuration / (1000 * 60 * 60);
+  return workDurationInHours;
+};
+
 //#endregion
+
+export default WorkChart;

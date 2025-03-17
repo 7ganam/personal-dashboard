@@ -9,6 +9,7 @@ import SleepChart from "./components/SleepChart";
 import WorkChart from "./components/WorkChart";
 import TStrike from "./components/TStrike/TStrike";
 import DayViewCard from "./components/dayView/DayViewCard";
+import SportsStrike from "./components/SportsStrike/SportsStrike";
 const databases = {
   thoughts: "98180a95daa943efba244291cebf6547",
   clips: "2544ef9a027d42568da42018d5216390",
@@ -121,24 +122,27 @@ export default function NotionPage() {
       </div>
       <div className="w-full p-10 flex flex-row gap-10">
         <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
-          <DietChart />
+          <DietChart caloriesLimit={1800} />
         </Paper>
         <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
-          <WeightChart />
+          <WeightChart weightTarget={75} />
         </Paper>
       </div>
       <div className="w-full p-10 flex flex-row gap-10">
         <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
-          <SleepChart />
+          <SleepChart sleepLimit={9} />
         </Paper>
         <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
-          <WorkChart />
+          <WorkChart workTarget={8} />
         </Paper>
       </div>
 
       <div className="w-full p-10 flex flex-row gap-10 bg-gray-100">
         <Paper className="  mt-10 p-10 border-2 border-gray-300 rounded-md w-[700px]">
           <TStrike />
+        </Paper>
+        <Paper className="  mt-10 p-10 border-2 border-gray-300 rounded-md w-[700px]">
+          <SportsStrike />
         </Paper>
       </div>
     </div>

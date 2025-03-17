@@ -55,7 +55,7 @@ export const fetchDietDataNotion = async (
         {
           property: "Date",
           date: {
-            on_or_after: startDate,
+            on_or_after: startDate + "T00:00:00.000+02:00",
           },
         },
         {

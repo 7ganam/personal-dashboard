@@ -21,8 +21,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
-import { formatDate } from "../utils/utils";
-type Props = {};
+import { formatDateFromIsoString } from "../utils/utils";
+type Props = {
+  weightTarget: number;
+};
 
 const WeightChart = (props: Props) => {
   // Get first day of current month
@@ -103,7 +105,6 @@ const WeightChart = (props: Props) => {
     };
   });
 
-  console.log(weightData);
   // Custom tick formatter for x-axis
   const formatXAxis = timeFormat("%d-%m-%y");
 
@@ -255,7 +256,7 @@ export default WeightChart;
 
 const calculateXandYAxis = (sortedWeightData: any, startDate: any) => {
   const formattedDates = sortedWeightData.map((item: any) =>
-    formatDate(item.properties.Date.date.start)
+    formatDateFromIsoString(item.properties.Date.date.start)
   );
 
   const xAxis = formattedDates;
@@ -264,8 +265,8 @@ const calculateXandYAxis = (sortedWeightData: any, startDate: any) => {
   });
 
   //if the xAxis doesn't start with startDate add a point with xAxis value as startDate and yAxis value as 0
-  if (!xAxis.includes(formatDate(startDate))) {
-    xAxis.unshift(formatDate(startDate));
+  if (!xAxis.includes(formatDateFromIsoString(startDate))) {
+    xAxis.unshift(formatDateFromIsoString(startDate));
     yAxis.unshift(null);
   }
 

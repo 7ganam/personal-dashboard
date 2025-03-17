@@ -21,15 +21,18 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
-import { formatDate } from "../utils/utils";
+import { formatDateFromIsoString } from "../utils/utils";
 import { fetchDietData } from "../apiRequests/diet-requests";
 
-type Props = {};
+type Props = { caloriesLimit: number };
 
 const DietChart = (props: Props) => {
+  //#region ======================= fetch diet data =========================
   // Get first day of current month
   const firstDayOfMonth = new Date();
   firstDayOfMonth.setDate(1);
+
+  const today = new Date();
 
   // Get tomorrow's date
   const tomorrow = new Date();
@@ -39,7 +42,7 @@ const DietChart = (props: Props) => {
     firstDayOfMonth.toISOString().split("T")[0]
   ); // Default to first day of current month
 
-  const [endDate, setEndDate] = useState(tomorrow.toISOString().split("T")[0]); // Default to tomorrow
+  const [endDate, setEndDate] = useState(today.toISOString().split("T")[0]); // Default to tomorrow
   const [diet, setDiet] = useState<any>([]);
   const [errorDiet, setErrorDiet] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +51,9 @@ const DietChart = (props: Props) => {
     fetchDietData(startDate, endDate, setIsLoading, setDiet, setErrorDiet);
   }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
 
+  //#endregion
+
+  //#region ======================= prepare data for chart =========================
   const sortedDietData = diet.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
     const dateB = new Date(b.properties.Date.date.start);
@@ -56,14 +62,60 @@ const DietChart = (props: Props) => {
 
   const { xAxis, yAxis } = calculateXandYAxis(sortedDietData, startDate);
 
-  const dietData = xAxis.map((date: any) => {
+  // Generate array of all dates between start and end date
+  const generateDateRange = (start: string, end: string) => {
+    const dates = [];
+
+    // WORKAROUND: Adding a buffer date one day before the start date.
+    // This is needed because Recharts centers bars on their x-axis ticks by default.
+    // which was causing it to intersect with the y-axis labels.
+    const bufferDate = new Date(start);
+    bufferDate.setDate(bufferDate.getDate() - 1);
+    dates.push(formatDateFromIsoString(bufferDate.toISOString()));
+
+    const currentDate = new Date(start);
+    const endDate = new Date(end);
+
+    while (currentDate <= endDate) {
+      dates.push(formatDateFromIsoString(currentDate.toISOString()));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+  };
+
+  // Get all dates in range and create data points
+  const allDates = generateDateRange(startDate, endDate);
+  const dietData = allDates.map((date: string) => {
+    const dateIndex = xAxis.indexOf(date);
+    const calories = dateIndex >= 0 ? yAxis[dateIndex] : 0;
+    const isBufferDate = new Date(date) < new Date(startDate);
+    const isToday = new Date(date).toDateString() === new Date().toDateString();
+    const hasNoData = calories === 0;
+
+    // Create date at start of day (midnight)
+    const dateObj = new Date(date);
+    dateObj.setHours(0, 0, 0, 0);
+
+    // Add 12 hours (noon) to center the bar
+    const timestamp = dateObj.getTime() + 12 * 60 * 60 * 1000;
+
     return {
-      name: new Date(date).getTime(), // Convert to timestamp for proper date scaling
-      displayDate: date, // Keep original date for display
-      amt: 1800,
-      uv: 1800,
-      pv: yAxis[xAxis.indexOf(date)],
-      cnt: 490,
+      name: timestamp,
+      displayDate: date,
+      calories: isBufferDate ? null : hasNoData && !isToday ? null : calories,
+      target: isBufferDate ? null : props.caloriesLimit,
+      remaining: isBufferDate
+        ? null
+        : hasNoData && !isToday
+        ? null
+        : calories >= props.caloriesLimit
+        ? 0
+        : props.caloriesLimit - calories,
+      noData: isBufferDate
+        ? null
+        : hasNoData && !isToday
+        ? props.caloriesLimit
+        : null,
     };
   });
 
@@ -77,6 +129,7 @@ const DietChart = (props: Props) => {
     const referenceLines = [];
 
     let currentDate = new Date(start.getFullYear(), start.getMonth(), 1);
+    currentDate.setHours(12, 0, 0, 0); // Set to noon
 
     while (currentDate <= end) {
       referenceLines.push(
@@ -92,17 +145,20 @@ const DietChart = (props: Props) => {
         />
       );
 
-      // Move to first day of next month
+      // Move to first day of next month (at noon)
       currentDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        1
+        1,
+        12 // Set to noon
       );
     }
 
     return referenceLines;
   };
+  //#endregion
 
+  //#region ======================= render =========================
   return (
     <div className="w-full h-full ">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -170,12 +226,16 @@ const DietChart = (props: Props) => {
               dataKey="name"
               type="number"
               scale="time"
-              domain={["dataMin", "dataMax"]}
+              domain={["auto", "auto"]}
               tickFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
               angle={-90}
               textAnchor="end"
               height={90}
               dy={10}
+              dx={20}
+              interval={0}
+              tickMargin={0}
+              tickSize={8}
             />
             <YAxis
               label={{ value: "Calories", angle: -90, position: "insideLeft" }}
@@ -184,25 +244,46 @@ const DietChart = (props: Props) => {
               labelFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
             />
             <Bar
-              dataKey="pv"
+              dataKey="calories"
+              stackId="diet"
               barSize={20}
               name="Daily Calories"
               isAnimationActive={false}
+              xAxisId={0}
             >
-              {dietData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={entry.pv > 1800 ? "#FF0000" : "#4CAF50"}
-                />
+              {dietData.map((entry: any, index: any) => (
+                <Cell key={`cell-${entry?.name}`} fill={"#FF0A00"} />
               ))}
             </Bar>
+            <Bar
+              dataKey="remaining"
+              stackId="diet"
+              barSize={20}
+              name="Remaining Calories"
+              isAnimationActive={false}
+              fill="#4CAF50"
+              xAxisId={0}
+              maxBarSize={20}
+              offset={-10}
+            />
+            <Bar
+              dataKey="noData"
+              stackId="diet"
+              barSize={20}
+              name="No Data"
+              isAnimationActive={false}
+              fill="#808080"
+              xAxisId={0}
+              maxBarSize={20}
+              offset={-10}
+            />
             <Line
               type="monotone"
-              dataKey="uv"
+              dataKey="target"
               stroke="#2E7D32"
               name="Target Line"
-              dot={false}
               isAnimationActive={false}
+              dot={false}
             />
             {generateMonthReferenceLines()}
           </ComposedChart>
@@ -210,6 +291,7 @@ const DietChart = (props: Props) => {
       </div>
     </div>
   );
+  //#endregion
 };
 
 export default DietChart;
@@ -220,7 +302,7 @@ const calculateXandYAxis = (sortedDietData: any, startDate: any) => {
   const uniqueFormattedDates = [
     ...new Set(
       sortedDietData.map((item: any) =>
-        formatDate(item.properties.Date.date.start)
+        formatDateFromIsoString(item.properties.Date.date.start)
       )
     ),
   ];
@@ -229,7 +311,8 @@ const calculateXandYAxis = (sortedDietData: any, startDate: any) => {
 
   uniqueFormattedDates.forEach((date: any) => {
     const diets = sortedDietData.filter(
-      (item: any) => formatDate(item.properties.Date.date.start) === date
+      (item: any) =>
+        formatDateFromIsoString(item.properties.Date.date.start) === date
     );
     groupedDietDataPerDay.push({ date, diets });
   });
@@ -244,8 +327,8 @@ const calculateXandYAxis = (sortedDietData: any, startDate: any) => {
   });
 
   //if the xAxis doesn't start with startDate add a point with xAxis value as startDate and yAxis value as 0
-  if (!xAxis.includes(formatDate(startDate))) {
-    xAxis.unshift(formatDate(startDate));
+  if (!xAxis.includes(formatDateFromIsoString(startDate))) {
+    xAxis.unshift(formatDateFromIsoString(startDate));
     yAxis.unshift(0);
   }
 
