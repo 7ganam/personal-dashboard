@@ -84,36 +84,64 @@ export default function NotionPage() {
 
   //#region =======================Render======================================
   return (
-    <div>
-      <h1>Notion Database Entries</h1>
-      <div className=" p-10 flex flex-row gap-10 w-[700px] bg-gray-100 rounded-md m-10">
-        <DayViewCard />
+    <div className="flex w-full min-h-screen flex-col min-[1200px]:flex-row">
+      {/* Left Column - 1/4 width */}
+      <div className="w-full min-[1200px]:w-1/4 p-4">
+        <div className="w-full p-10 bg-gray-100 rounded-lg shadow-md border-2 border-gray-200">
+          <DayViewCard />
+        </div>
       </div>
 
-      <div className="w-full p-10 flex flex-row gap-10">
-        <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
-          <DietChart caloriesLimit={1800} />
-        </Paper>
-        <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
-          <WeightChart weightTarget={75} />
-        </Paper>
-      </div>
-      <div className="w-full p-10 flex flex-row gap-10">
-        <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
-          <SleepChart sleepLimit={9} />
-        </Paper>
-        <Paper className=" h-[600px] mt-10 p-10 border-2 border-gray-300 rounded-md">
-          <WorkChart workTarget={8} />
-        </Paper>
-      </div>
+      {/* Right Column - 3/4 width */}
+      <div className="w-full min-[1200px]:w-3/4 p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+          {/* Cell 1 - Diet Chart */}
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10">
+              <DietChart caloriesLimit={1800} />
+            </div>
+          </div>
 
-      <div className="w-full p-10 flex flex-row gap-10 bg-gray-100">
-        <Paper className="  mt-10 p-10 border-2 border-gray-300 rounded-md w-[700px]">
-          <TStrike />
-        </Paper>
-        <Paper className="  mt-10 p-10 border-2 border-gray-300 rounded-md w-[700px]">
-          <SportsStrike />
-        </Paper>
+          {/* Cell 2 - Weight Chart */}
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10">
+              <WeightChart weightTarget={75} />
+            </div>
+          </div>
+
+          {/* Cell 3 - Sleep Chart */}
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10">
+              <SleepChart sleepLimit={9} />
+            </div>
+          </div>
+
+          {/* Cell 4 - Work Chart */}
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10">
+              <WorkChart workTarget={8} />
+            </div>
+          </div>
+
+          {/* Cell 5 - T Strike */}
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10 px-10">
+              <TStrike />
+            </div>
+          </div>
+
+          {/* Cell 6 - Sports Strike */}
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10 px-10">
+              <SportsStrike />
+            </div>
+          </div>
+
+          {/* Cells 7-9 - Empty */}
+          <div className="aspect-square bg-gray-50 rounded-lg"></div>
+          <div className="aspect-square bg-gray-50 rounded-lg"></div>
+          <div className="aspect-square bg-gray-50 rounded-lg"></div>
+        </div>
       </div>
     </div>
   );

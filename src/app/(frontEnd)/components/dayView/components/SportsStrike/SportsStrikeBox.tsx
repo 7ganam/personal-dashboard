@@ -46,7 +46,7 @@ function SportsStrikeBox({}: Props) {
 
   return (
     <div
-      className={` min-h-10 min-w-10 bg-gray-200 rounded-md flex items-center justify-center w-full h-full ${strikeStateColor[todayTStrikeState]}`}
+      className={` min-h-10 min-w-10 bg-gray-200 rounded-md flex items-center justify-center w-full h-full p-4 text-center ${strikeStateColor[todayTStrikeState]}`}
       style={{ backgroundColor: strikeStateColor[todayTStrikeState] }}
     >
       Sports strike

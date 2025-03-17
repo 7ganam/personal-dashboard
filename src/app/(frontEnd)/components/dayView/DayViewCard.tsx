@@ -9,6 +9,9 @@ type Props = {};
 function DayViewCard({}: Props) {
   return (
     <div className="w-full h-full bg-gray-100 rounded-md flex flex-col gap-4">
+      <div className="w-full flex justify-start items-center gap-4 p-4 bg-slate-200 border border-slate-300 rounded-md mb-10">
+        <div className="w-full text-center font-bold text-2xl">TODAY</div>
+      </div>
       <CaloriesBarContainer />
       <WorkBarContainer />
       <SleepBarContainer />

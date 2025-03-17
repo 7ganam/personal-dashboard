@@ -20,8 +20,9 @@ import Box from "@mui/material/Box";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { Button } from "@mui/material";
+import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString } from "../utils/utils";
 import { fetchWorkData } from "../apiRequests/work-requests";
 
@@ -49,6 +50,18 @@ const WorkChart = (props: Props) => {
   const [errorWork, setErrorWork] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
+
+  // Add state for the popover
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     fetchWorkData(startDate, endDate, setIsLoading, setWork, setErrorWork);
@@ -118,7 +131,7 @@ const WorkChart = (props: Props) => {
     };
   });
 
-  const formatXAxis = timeFormat("%d-%m-%y");
+  const formatXAxis = timeFormat("%d-%m");
 
   // Add this function to generate month reference lines
   const generateMonthReferenceLines = () => {
@@ -159,34 +172,61 @@ const WorkChart = (props: Props) => {
   return (
     <div className="w-full h-full ">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <div className="mb-4 flex gap-4 ml-[80px] justify-end px-10">
-          <DatePicker
-            className="w-[150px]"
-            slotProps={{ textField: { size: "small" } }}
-            label="Start Date"
-            value={dayjs(startDate)}
-            onChange={(newValue: Dayjs | null) =>
-              setStartDate(newValue?.format("YYYY-MM-DD") || startDate)
-            }
-          />
-          <DatePicker
-            className="w-[150px]"
-            slotProps={{ textField: { size: "small" } }}
-            label="End Date"
-            value={dayjs(endDate)}
-            onChange={(newValue: Dayjs | null) =>
-              setEndDate(newValue?.format("YYYY-MM-DD") || endDate)
-            }
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              setReloadCount(reloadCount + 1);
-            }}
-          >
-            <RotateLeftIcon />
-          </Button>
+        <div className="mb-4 flex justify-between items-center px-10">
+          <h2 className="text-xl font-semibold">Work Duration</h2>
+          <div className="flex gap-4">
+            <Button
+              variant="contained"
+              onClick={handleClick}
+              startIcon={<CalendarMonthIcon />}
+              size="small"
+            >
+              Select Dates
+            </Button>
+            <Popover
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+            >
+              <div className="p-4 flex flex-col gap-4">
+                <DatePicker
+                  className="w-[200px]"
+                  slotProps={{ textField: { size: "small" } }}
+                  label="Start Date"
+                  value={dayjs(startDate)}
+                  onChange={(newValue: Dayjs | null) =>
+                    setStartDate(newValue?.format("YYYY-MM-DD") || startDate)
+                  }
+                />
+                <DatePicker
+                  className="w-[200px]"
+                  slotProps={{ textField: { size: "small" } }}
+                  label="End Date"
+                  value={dayjs(endDate)}
+                  onChange={(newValue: Dayjs | null) =>
+                    setEndDate(newValue?.format("YYYY-MM-DD") || endDate)
+                  }
+                />
+              </div>
+            </Popover>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setReloadCount(reloadCount + 1);
+              }}
+            >
+              <RotateLeftIcon />
+            </Button>
+          </div>
         </div>
       </LocalizationProvider>
       <div className="w-full h-[600px] relative">
@@ -215,7 +255,7 @@ const WorkChart = (props: Props) => {
               top: 30,
               right: 40,
               bottom: 90,
-              left: 20,
+              left: 10,
             }}
           >
             <CartesianGrid stroke="#f5f5f5" />
@@ -258,13 +298,7 @@ const WorkChart = (props: Props) => {
                 );
               }}
             />
-            <YAxis
-              label={{
-                value: "Work Duration (Hours)",
-                angle: -90,
-                position: "insideLeft",
-              }}
-            />
+            <YAxis domain={[0, "auto"]} dx={-20} />
             <Tooltip
               labelFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
             />
