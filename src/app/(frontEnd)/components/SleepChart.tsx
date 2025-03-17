@@ -206,9 +206,7 @@ const SleepChart = (props: Props) => {
               onClick={handleClick}
               startIcon={<CalendarMonthIcon />}
               size="small"
-            >
-              Select Dates
-            </Button>
+            ></Button>
             <Popover
               open={open}
               anchorEl={anchorEl}
