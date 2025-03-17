@@ -92,15 +92,8 @@ const DietChart = (props: Props) => {
     const isToday = new Date(date).toDateString() === new Date().toDateString();
     const hasNoData = calories === 0;
 
-    // Create date at start of day (midnight)
-    const dateObj = new Date(date);
-    dateObj.setHours(0, 0, 0, 0);
-
-    // Add 12 hours (noon) to center the bar
-    const timestamp = dateObj.getTime() + 12 * 60 * 60 * 1000;
-
     return {
-      name: timestamp,
+      name: new Date(date).getTime(),
       displayDate: date,
       calories: isBufferDate ? null : hasNoData && !isToday ? null : calories,
       target: isBufferDate ? null : props.caloriesLimit,
@@ -129,7 +122,6 @@ const DietChart = (props: Props) => {
     const referenceLines = [];
 
     let currentDate = new Date(start.getFullYear(), start.getMonth(), 1);
-    currentDate.setHours(12, 0, 0, 0); // Set to noon
 
     while (currentDate <= end) {
       referenceLines.push(
@@ -145,12 +137,11 @@ const DietChart = (props: Props) => {
         />
       );
 
-      // Move to first day of next month (at noon)
+      // Move to first day of next month
       currentDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        1,
-        12 // Set to noon
+        1
       );
     }
 
@@ -226,40 +217,18 @@ const DietChart = (props: Props) => {
               dataKey="name"
               type="number"
               scale="time"
-              domain={["auto", "auto"]}
+              domain={["dataMin", "dataMax"]}
               tickFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
               angle={-90}
               textAnchor="end"
               height={90}
               dy={10}
-              dx={-4}
+              dx={20}
               interval={0}
               tickMargin={0}
               tickSize={8}
               tickLine={{ transform: "translate(20, 0)" }}
-              tick={(props) => {
-                const { x, y, payload } = props;
-                const date = new Date(payload.value);
-                const isToday =
-                  date.toDateString() === new Date().toDateString();
-
-                return (
-                  <g transform={`translate(${x + 20},${y})`}>
-                    <text
-                      x={0}
-                      y={0}
-                      dy={16}
-                      textAnchor="end"
-                      fill={isToday ? "#4CAF50" : "#666666"}
-                      transform="rotate(-90) translate(-5, -28)"
-                      className={"text-sm" + isToday ? " font-bold" : ""}
-                      fontFamily="monospace"
-                    >
-                      {formatXAxis(date)}
-                    </text>
-                  </g>
-                );
-              }}
+              tick={{ transform: "translate(20, 0)" }}
             />
             <YAxis
               label={{ value: "Calories", angle: -90, position: "insideLeft" }}
@@ -274,6 +243,7 @@ const DietChart = (props: Props) => {
               name="Daily Calories"
               isAnimationActive={false}
               xAxisId={0}
+              offset={20}
             >
               {dietData.map((entry: any, index: any) => (
                 <Cell key={`cell-${entry?.name}`} fill={"#FF0A00"} />
@@ -287,8 +257,7 @@ const DietChart = (props: Props) => {
               isAnimationActive={false}
               fill="#4CAF50"
               xAxisId={0}
-              maxBarSize={20}
-              offset={-10}
+              offset={20}
             />
             <Bar
               dataKey="noData"
@@ -296,10 +265,9 @@ const DietChart = (props: Props) => {
               barSize={20}
               name="No Data"
               isAnimationActive={false}
-              fill="#808080"
+              fill="#F5F5F5"
               xAxisId={0}
-              maxBarSize={20}
-              offset={-10}
+              offset={20}
             />
             <Line
               type="monotone"

@@ -297,7 +297,7 @@ const WorkChart = (props: Props) => {
               barSize={20}
               name="No Data"
               isAnimationActive={false}
-              fill="#808080"
+              fill="#F5F5F5"
               xAxisId={0}
               offset={20}
             />
