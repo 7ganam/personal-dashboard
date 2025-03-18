@@ -22,7 +22,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { formatDateFromIsoString } from "../utils/utils";
+import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
 import { fetchDietData } from "../apiRequests/diet-requests";
 
 type Props = { caloriesLimit: number };
@@ -40,10 +40,11 @@ const DietChart = (props: Props) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const [startDate, setStartDate] = useState(
-    firstDayOfMonth.toISOString().split("T")[0]
+    formatDateToYYYYMMDD(firstDayOfMonth)
   ); // Default to first day of current month
 
-  const [endDate, setEndDate] = useState(today.toISOString().split("T")[0]); // Default to tomorrow
+  console.log({ endDate: formatDateToYYYYMMDD(today) });
+  const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(today)); // Default to today
   const [diet, setDiet] = useState<any>([]);
   const [errorDiet, setErrorDiet] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,13 +73,13 @@ const DietChart = (props: Props) => {
     // which was causing it to intersect with the y-axis labels.
     const bufferDate = new Date(start);
     bufferDate.setDate(bufferDate.getDate() - 1);
-    dates.push(formatDateFromIsoString(bufferDate.toISOString()));
+    dates.push(formatDateToYYYYMMDD(bufferDate));
 
     const currentDate = new Date(start);
     const endDate = new Date(end);
 
     while (currentDate <= endDate) {
-      dates.push(formatDateFromIsoString(currentDate.toISOString()));
+      dates.push(formatDateToYYYYMMDD(currentDate));
       currentDate.setDate(currentDate.getDate() + 1);
     }
     return dates;
@@ -102,6 +103,8 @@ const DietChart = (props: Props) => {
         ? null
         : hasNoData && !isToday
         ? null
+        : isToday
+        ? props.caloriesLimit
         : calories >= props.caloriesLimit
         ? 0
         : props.caloriesLimit - calories,
@@ -261,12 +264,34 @@ const DietChart = (props: Props) => {
               textAnchor="end"
               height={90}
               dy={10}
-              dx={20}
+              dx={-4}
               interval={0}
               tickMargin={0}
               tickSize={8}
               tickLine={{ transform: "translate(20, 0)" }}
-              tick={{ transform: "translate(20, 0)" }}
+              tick={(props) => {
+                const { x, y, payload } = props;
+                const date = new Date(payload.value);
+                const isToday =
+                  date.toDateString() === new Date().toDateString();
+
+                return (
+                  <g transform={`translate(${x + 20},${y})`}>
+                    <text
+                      x={0}
+                      y={0}
+                      dy={16}
+                      textAnchor="end"
+                      fill={isToday ? "#4CAF50" : "#666666"}
+                      transform="rotate(-90) translate(-5, -28)"
+                      className={"text-sm" + isToday ? " font-bold" : ""}
+                      fontFamily="monospace"
+                    >
+                      {formatXAxis(date)}
+                    </text>
+                  </g>
+                );
+              }}
             />
             <YAxis domain={[0, "auto"]} dx={-20} />
             <Tooltip
@@ -308,8 +333,8 @@ const DietChart = (props: Props) => {
             <Line
               type="monotone"
               dataKey="target"
-              stroke="#2E7D32"
-              name="Target Line"
+              stroke="#FF0A00"
+              name="Limit Line"
               isAnimationActive={false}
               dot={false}
             />

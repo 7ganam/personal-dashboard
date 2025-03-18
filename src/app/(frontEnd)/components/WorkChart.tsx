@@ -23,7 +23,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { formatDateFromIsoString } from "../utils/utils";
+import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
 import { fetchWorkData } from "../apiRequests/work-requests";
 
 type Props = { workTarget: number };
@@ -42,10 +42,10 @@ const WorkChart = (props: Props) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const [startDate, setStartDate] = useState(
-    firstDayOfMonth.toISOString().split("T")[0]
+    formatDateToYYYYMMDD(firstDayOfMonth)
   ); // Default to first day of current month
 
-  const [endDate, setEndDate] = useState(today.toISOString().split("T")[0]); // Default to tomorrow
+  const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(today)); // Default to tomorrow
   const [work, setWork] = useState<any>([]);
   const [errorWork, setErrorWork] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);

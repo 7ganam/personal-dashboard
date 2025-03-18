@@ -22,7 +22,9 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { formatDateFromIsoString } from "../utils/utils";
+import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
+import { fetchSleepData } from "../apiRequests/sleep-requests";
+
 type Props = { sleepLimit: number };
 
 const SleepChart = (props: Props) => {
@@ -37,10 +39,10 @@ const SleepChart = (props: Props) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const [startDate, setStartDate] = useState(
-    firstDayOfMonth.toISOString().split("T")[0]
+    formatDateToYYYYMMDD(firstDayOfMonth)
   ); // Default to first day of current month
 
-  const [endDate, setEndDate] = useState(today.toISOString().split("T")[0]); // Default to tomorrow
+  const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(today)); // Default to tomorrow
   const [sleep, setSleep] = useState<any>([]);
   const [errorSleep, setErrorSleep] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -163,6 +165,7 @@ const SleepChart = (props: Props) => {
   const formatXAxis = timeFormat("%d-%m");
 
   // Add this function to generate month reference lines
+  // Add this function to generate month reference lines
   const generateMonthReferenceLines = () => {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -194,7 +197,6 @@ const SleepChart = (props: Props) => {
 
     return referenceLines;
   };
-
   return (
     <div className="w-full h-full ">
       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -327,6 +329,16 @@ const SleepChart = (props: Props) => {
               labelFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
             />
 
+            <Bar
+              dataKey="noData"
+              stackId="sleep"
+              barSize={20}
+              name="No Data"
+              isAnimationActive={false}
+              fill="#F5F5F5"
+              xAxisId={0}
+              offset={20}
+            />
             {generateMonthReferenceLines()}
             {/* Actual sleep hours - shown in red */}
             <Bar
@@ -353,23 +365,12 @@ const SleepChart = (props: Props) => {
               xAxisId={0}
               offset={20}
             />
-            {/* Grey bar for days with no data (except today) */}
-            <Bar
-              dataKey="noData"
-              stackId="sleep"
-              barSize={20}
-              name="No Data"
-              isAnimationActive={false}
-              fill="#F5F5F5"
-              xAxisId={0}
-              offset={20}
-            />
             {/* Target line showing sleep goal */}
             <Line
               type="monotone"
               dataKey="target"
-              stroke="#2E7D32"
-              name="Target Line"
+              stroke="#FF0A00"
+              name="Limit Line"
               isAnimationActive={false}
               dot={false}
             />

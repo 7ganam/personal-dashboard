@@ -22,7 +22,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { formatDateFromIsoString } from "../utils/utils";
+import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
+
 type Props = {
   weightTarget: number;
 };
@@ -37,10 +38,11 @@ const WeightChart = (props: Props) => {
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   const [startDate, setStartDate] = useState(
-    firstDayOfMonth.toISOString().split("T")[0]
+    formatDateToYYYYMMDD(firstDayOfMonth)
   ); // Default to first day of current month
 
-  const [endDate, setEndDate] = useState(tomorrow.toISOString().split("T")[0]); // Default to tomorrow
+  const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(tomorrow)); // Default to tomorrow
+  console.log({ endDate });
   const [weight, setWeight] = useState<any>([]);
   const [errorWeight, setErrorWeight] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -241,7 +243,12 @@ const WeightChart = (props: Props) => {
               left: 10,
             }}
           >
-            <CartesianGrid stroke="#f5f5f5" />
+            <CartesianGrid
+              stroke="#e5e7eb"
+              horizontal={true}
+              vertical={false}
+              strokeDasharray="none"
+            />
             <XAxis
               dataKey="name"
               type="number"
@@ -253,7 +260,24 @@ const WeightChart = (props: Props) => {
               height={90}
               dy={10}
             />
-            <YAxis domain={[73, "auto"]} dx={-10} />
+            <YAxis
+              domain={[73, "auto"]}
+              dx={-10}
+              // Calculate number of grid lines needed:
+              // 1. Get max weight value from data (d.uv || 0 handles null values)
+              // 2. Subtract 73 (min weight) to get the range
+              // 3. Add 1 to include both start and end values
+              // 4. Round up to ensure we cover the full range
+              // 5. Create array of integers from 73 up to max value
+              ticks={Array.from(
+                {
+                  length: Math.ceil(
+                    Math.max(...weightData.map((d: any) => d.uv || 0)) - 73 + 1
+                  ),
+                },
+                (_, i) => 73 + i
+              )}
+            />
             <Tooltip
               labelFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
             />

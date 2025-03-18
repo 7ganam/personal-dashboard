@@ -97,42 +97,42 @@ export default function NotionPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
           {/* Cell 1 - Diet Chart */}
           <div className="aspect-square">
-            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[550px] pt-10">
               <DietChart caloriesLimit={1800} />
             </div>
           </div>
 
           {/* Cell 2 - Weight Chart */}
           <div className="aspect-square">
-            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[550px] pt-10">
               <WeightChart weightTarget={75} />
             </div>
           </div>
 
           {/* Cell 3 - Sleep Chart */}
           <div className="aspect-square">
-            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[550px] pt-10">
               <SleepChart sleepLimit={9} />
             </div>
           </div>
 
           {/* Cell 4 - Work Chart */}
           <div className="aspect-square">
-            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[550px] pt-10">
               <WorkChart workTarget={8} />
             </div>
           </div>
 
           {/* Cell 5 - T Strike */}
           <div className="aspect-square">
-            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10 px-10">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[550px] pt-10 px-10">
               <TStrike />
             </div>
           </div>
 
           {/* Cell 6 - Sports Strike */}
           <div className="aspect-square">
-            <div className="w-full h-full p-4 bg-gray-100 min-h-[600px] pt-10 px-10">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[550px] pt-10 px-10">
               <SportsStrike />
             </div>
           </div>
