@@ -125,6 +125,21 @@ const getDatesFromT = (
   const tvDates: Date[] = [];
   const freeDates: Date[] = [];
 
+  const isToday = (t: any) => {
+    const today = new Date();
+    const todayFormatted = formatDateFromIsoString(today.toISOString());
+    const dateFormatted = formatDateFromIsoString(
+      t?.properties?.["Date"]?.date?.start
+    );
+    return todayFormatted === dateFormatted;
+  };
+
+  //only today is considered success if it has no data. other days will considered to have no data
+  const todayHasT = t.some((t: any) => isToday(t));
+  if (!todayHasT) {
+    freeDates.push(new Date());
+  }
+
   t.forEach((t: any) => {
     if (
       t?.properties?.note?.title[0]?.plain_text
