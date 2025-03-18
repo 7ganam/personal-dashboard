@@ -10,6 +10,7 @@ import WorkChart from "./components/WorkChart";
 import TStrike from "./components/TStrike/TStrike";
 import DayViewCard from "./components/dayView/DayViewCard";
 import SportsStrike from "./components/SportsStrike/SportsStrike";
+import RunningChart from "./components/RunningChart";
 
 export default function NotionPage() {
   //#region =======================fetch the thoughts==========================
@@ -138,9 +139,26 @@ export default function NotionPage() {
           </div>
 
           {/* Cells 7-9 - Empty */}
-          <div className="aspect-square bg-gray-50 rounded-lg"></div>
-          <div className="aspect-square bg-gray-50 rounded-lg"></div>
-          <div className="aspect-square bg-gray-50 rounded-lg"></div>
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]">
+              <RunningChart runningTarget={4} />
+            </div>
+          </div>
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]"></div>
+          </div>
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]"></div>
+          </div>
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]"></div>
+          </div>
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]"></div>
+          </div>
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]"></div>
+          </div>
         </div>
       </div>
     </div>
