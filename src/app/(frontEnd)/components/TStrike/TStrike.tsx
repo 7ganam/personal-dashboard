@@ -51,6 +51,7 @@ const TStrike = (props: any) => {
   //#region =============================render =========================================
   return (
     <div className="w-full h-full">
+      {/* Header Section - Title and Reload Button */}
       <div className="mb-4 flex gap-2 justify-end px-0 w-full">
         <div className="text-sm font-semibold grow">T strike</div>
         <Button
@@ -69,7 +70,10 @@ const TStrike = (props: any) => {
           <RotateLeftIcon sx={{ fontSize: 16 }} />
         </Button>
       </div>
-      <div className="w-full relative">
+
+      {/* Calendar Container */}
+      <div className="w-full relative max-[375px]:px-1 min-[375px]:px-8 max-[777px]:px-8 min-[777px]:px-0 min-[1457px]:px-4 min-[1577px]:px-8">
+        {/* Loading Indicator */}
         {isLoading && (
           <div className="absolute inset-0 flex items-start justify-start z-10">
             <Box
@@ -85,6 +89,8 @@ const TStrike = (props: any) => {
             </Box>
           </div>
         )}
+
+        {/* Calendar Component */}
         <Calendar
           mode="single"
           selected={date}
