@@ -85,9 +85,11 @@ const SportsStrike = (props: any) => {
           onMonthChange={setSelectedMonth}
           modifiers={{
             sports: sportsDates,
+            future: (date) => date > new Date(),
           }}
           modifiersClassNames={{
             sports: "!bg-green-500",
+            future: "!bg-gray-200 text-gray-400",
           }}
           className="rounded-md border [&_.rdp-day_button.rdp-day_today]:bg-green-500"
         />
