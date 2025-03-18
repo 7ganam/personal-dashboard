@@ -121,7 +121,7 @@ const WeightChart = (props: Props) => {
   });
 
   // Custom tick formatter for x-axis
-  const formatXAxis = timeFormat("%d-%m");
+  const formatXAxis = timeFormat("%d");
 
   // Add this function to generate month reference lines
   const generateMonthReferenceLines = () => {
@@ -139,8 +139,11 @@ const WeightChart = (props: Props) => {
           stroke="#666"
           strokeDasharray="3 3"
           label={{
-            value: timeFormat("%b %Y")(currentDate),
+            value: timeFormat("%b")(currentDate),
             position: "top",
+            fill: "#666666",
+            fontSize: 10,
+            fontFamily: "monospace",
           }}
         />
       );
@@ -157,18 +160,41 @@ const WeightChart = (props: Props) => {
   };
 
   return (
-    <div className="w-full h-full ">
+    <div className="w-full h-full relative">
+      {/* Loading indicator */}
+      {isLoading && (
+        <div className="h-5 w-5 absolute top-0 left-0 flex items-start justify-start z-10">
+          <Box
+            sx={{
+              display: "flex",
+              p: 1,
+              borderRadius: 1,
+              boxShadow: 3,
+              bgcolor: "white",
+            }}
+          >
+            <CircularProgress size={10} />
+          </Box>
+        </div>
+      )}
+
+      {/* Date pickers + titles */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <div className="mb-4 flex justify-between items-center px-10">
-          <h2 className="text-xl font-semibold">Weight Tracking</h2>
-          <div className="flex gap-4">
+        <div className="mb-4 flex justify-between items-center px-0">
+          <h2 className="text-sm font-semibold">Weight Tracking</h2>
+          <div className="flex gap-2">
             <Button
               variant="contained"
               onClick={handleClick}
               size="small"
-              className="min-w-[40px]"
+              sx={{
+                minWidth: "24px",
+                width: "24px",
+                height: "24px",
+                padding: 0,
+              }}
             >
-              <CalendarMonthIcon />
+              <CalendarMonthIcon sx={{ fontSize: 16 }} />
             </Button>
             <Popover
               open={open}
@@ -210,43 +236,35 @@ const WeightChart = (props: Props) => {
               onClick={() => {
                 setReloadCount(reloadCount + 1);
               }}
+              sx={{
+                minWidth: "24px",
+                width: "24px",
+                height: "24px",
+                padding: 0,
+              }}
             >
               <RotateLeftIcon />
             </Button>
           </div>
         </div>
       </LocalizationProvider>
-      <div className="w-full h-[600px] relative">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-start justify-start z-10 -mt-20 -ml-5 ">
-            <Box
-              sx={{
-                display: "flex",
 
-                p: 1,
-                borderRadius: 1,
-                boxShadow: 3,
-              }}
-            >
-              <CircularProgress size={20} />
-            </Box>
-          </div>
-        )}
-
-        <ResponsiveContainer width="100%" height="90%">
+      {/* Chart */}
+      <div className="w-full h-full relative">
+        <ResponsiveContainer width="100%" height="125%">
           <ComposedChart
             width={500}
             height={400}
             data={weightData}
             margin={{
               top: 30,
-              right: 40,
-              bottom: 90,
-              left: 10,
+              right: 10,
+              bottom: 60,
+              left: 0,
             }}
           >
             <CartesianGrid
-              stroke="#e5e7eb"
+              stroke="#f5f5f5"
               horizontal={true}
               vertical={false}
               strokeDasharray="none"
@@ -261,16 +279,42 @@ const WeightChart = (props: Props) => {
               textAnchor="end"
               height={90}
               dy={10}
+              dx={-4}
+              interval={4}
+              tickMargin={0}
+              tickSize={8}
+              tickLine={{ transform: "translate(20, 0)" }}
+              tick={(props) => {
+                const { x, y, payload } = props;
+                const date = new Date(payload.value);
+                const isToday =
+                  date.toDateString() === new Date().toDateString();
+
+                return (
+                  <g transform={`translate(${x + 20},${y})`}>
+                    <text
+                      x={0}
+                      y={0}
+                      dy={16}
+                      textAnchor="end"
+                      fill={isToday ? "#4CAF50" : "#666666"}
+                      transform="rotate(-90) translate(-5, -28)"
+                      className="text-xs"
+                      fontFamily="monospace"
+                    >
+                      {formatXAxis(date)}
+                    </text>
+                  </g>
+                );
+              }}
             />
             <YAxis
               domain={[73, "auto"]}
-              dx={-10}
-              // Calculate number of grid lines needed:
-              // 1. Get max weight value from data (d.uv || 0 handles null values)
-              // 2. Subtract 73 (min weight) to get the range
-              // 3. Add 1 to include both start and end values
-              // 4. Round up to ensure we cover the full range
-              // 5. Create array of integers from 73 up to max value
+              dx={-5}
+              tick={{ fontSize: 12, fontFamily: "monospace" }}
+              interval={0}
+              width={30}
+              allowDecimals={false}
               ticks={Array.from(
                 {
                   length: Math.ceil(
@@ -283,6 +327,29 @@ const WeightChart = (props: Props) => {
             <Tooltip
               labelFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
             />
+            {/* Add horizontal reference lines */}
+            {Array.from(
+              {
+                length: Math.ceil(
+                  Math.max(...weightData.map((d: any) => d.uv || 0)) - 73 + 1
+                ),
+              },
+              (_, i) => 73 + i
+            ).map((value) => (
+              <ReferenceLine
+                key={value}
+                y={value}
+                stroke="#e5e7eb"
+                strokeDasharray="none"
+                label={{
+                  value: value.toString(),
+                  position: "right",
+                  fill: "#666666",
+                  fontSize: 10,
+                  fontFamily: "monospace",
+                }}
+              />
+            ))}
             <Line
               type="monotone"
               dataKey="uv"
