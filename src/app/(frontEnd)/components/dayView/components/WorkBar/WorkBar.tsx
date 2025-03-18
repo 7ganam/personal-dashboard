@@ -44,7 +44,7 @@ function WorkBar({ targetWorkHours, currentWorkHours }: Props) {
         className="w-[40px] aspect-square rounded-md flex items-center justify-center"
         style={{
           backgroundColor:
-            currentWorkHours > targetWorkHours ? "#4CAF50" : "red",
+            currentWorkHours >= targetWorkHours ? "#4CAF50" : "red",
         }}
       >
         <TrendingUpIcon className="text-white" />

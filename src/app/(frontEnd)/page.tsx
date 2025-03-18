@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import * as React from "react";
 
 import DietChart from "./components/DietChart";
-import { Paper } from "@mui/material";
 import WeightChart from "./components/WeightChart";
 import SleepChart from "./components/SleepChart";
 import WorkChart from "./components/WorkChart";

@@ -1,11 +1,11 @@
 meta {
-  name: get sleep data
+  name: get webclips count
   type: http
-  seq: 4
+  seq: 5
 }
 
-post {
-  url: {{url}}/api/notion/sleep
+get {
+  url: {{url}}/api/notion/webclips/count
   body: json
   auth: none
 }
