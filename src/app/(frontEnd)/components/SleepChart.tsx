@@ -142,9 +142,19 @@ const SleepChart = (props: Props) => {
     const hasNoData = hours === 0;
 
     return {
-      name: new Date(date).getTime(), // Convert to timestamp for proper date scaling
-      displayDate: date, // Keep original date for display
+      name: new Date(date).getTime(),
+      displayDate: date,
       sleep: isBufferDate ? null : hasNoData && !isToday ? null : hours,
+      sleepBelowLimit: isBufferDate
+        ? null
+        : hasNoData && !isToday
+        ? null
+        : Math.min(hours, props.sleepLimit),
+      sleepAboveLimit: isBufferDate
+        ? null
+        : hasNoData && !isToday
+        ? null
+        : Math.max(0, hours - props.sleepLimit),
       target: isBufferDate ? null : props.sleepLimit,
       remaining: isBufferDate
         ? null
@@ -206,9 +216,11 @@ const SleepChart = (props: Props) => {
             <Button
               variant="contained"
               onClick={handleClick}
-              startIcon={<CalendarMonthIcon />}
               size="small"
-            ></Button>
+              className="min-w-[40px]"
+            >
+              <CalendarMonthIcon />
+            </Button>
             <Popover
               open={open}
               anchorEl={anchorEl}
@@ -340,19 +352,37 @@ const SleepChart = (props: Props) => {
               offset={20}
             />
             {generateMonthReferenceLines()}
-            {/* Actual sleep hours - shown in red */}
+            {/* Sleep hours below limit - shown in grey */}
             <Bar
-              dataKey="sleep"
+              dataKey="sleepBelowLimit"
               stackId="sleep"
               barSize={20}
-              name="Daily Sleep"
+              name="Sleep Below Limit"
               isAnimationActive={false}
               xAxisId={0}
               offset={20}
             >
-              {sleepData.map((entry: any, index: any) => (
-                <Cell key={`cell-${entry?.name}`} fill={"#FF0A00"} />
-              ))}
+              {sleepData.map((entry: any, index: any) => {
+                if (entry.sleepBelowLimit === null)
+                  return <Cell key={`cell-${entry?.name}`} fill="#F5F5F5" />;
+                return <Cell key={`cell-${entry?.name}`} fill="#808080" />;
+              })}
+            </Bar>
+            {/* Sleep hours above limit - shown in red */}
+            <Bar
+              dataKey="sleepAboveLimit"
+              stackId="sleep"
+              barSize={20}
+              name="Sleep Above Limit"
+              isAnimationActive={false}
+              xAxisId={0}
+              offset={20}
+            >
+              {sleepData.map((entry: any, index: any) => {
+                if (entry.sleepAboveLimit === null)
+                  return <Cell key={`cell-${entry?.name}`} fill="#F5F5F5" />;
+                return <Cell key={`cell-${entry?.name}`} fill="#FF0A00" />;
+              })}
             </Bar>
             {/* Green bar showing remaining hours to target when below target */}
             <Bar

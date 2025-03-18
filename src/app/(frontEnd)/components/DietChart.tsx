@@ -98,13 +98,21 @@ const DietChart = (props: Props) => {
       name: new Date(date).getTime(),
       displayDate: date,
       calories: isBufferDate ? null : hasNoData && !isToday ? null : calories,
+      caloriesBelowLimit: isBufferDate
+        ? null
+        : hasNoData && !isToday
+        ? null
+        : Math.min(calories, props.caloriesLimit),
+      caloriesAboveLimit: isBufferDate
+        ? null
+        : hasNoData && !isToday
+        ? null
+        : Math.max(0, calories - props.caloriesLimit),
       target: isBufferDate ? null : props.caloriesLimit,
       remaining: isBufferDate
         ? null
         : hasNoData && !isToday
         ? null
-        : isToday
-        ? props.caloriesLimit
         : calories >= props.caloriesLimit
         ? 0
         : props.caloriesLimit - calories,
@@ -172,12 +180,9 @@ const DietChart = (props: Props) => {
         <div className="mb-4 flex justify-between items-center px-10">
           <h2 className="text-xl font-semibold">Calories Intake</h2>
           <div className="flex gap-4">
-            <Button
-              variant="contained"
-              onClick={handleClick}
-              startIcon={<CalendarMonthIcon />}
-              size="small"
-            ></Button>
+            <Button variant="contained" onClick={handleClick} size="small">
+              <CalendarMonthIcon />
+            </Button>
             <Popover
               open={open}
               anchorEl={anchorEl}
@@ -298,17 +303,47 @@ const DietChart = (props: Props) => {
               labelFormatter={(timestamp) => formatXAxis(new Date(timestamp))}
             />
             <Bar
-              dataKey="calories"
+              dataKey="noData"
               stackId="diet"
               barSize={20}
-              name="Daily Calories"
+              name="No Data"
+              isAnimationActive={false}
+              fill="#F5F5F5"
+              xAxisId={0}
+              offset={20}
+            />
+            {generateMonthReferenceLines()}
+            {/* Calories below limit - shown in grey */}
+            <Bar
+              dataKey="caloriesBelowLimit"
+              stackId="diet"
+              barSize={20}
+              name="Calories Below Limit"
               isAnimationActive={false}
               xAxisId={0}
               offset={20}
             >
-              {dietData.map((entry: any, index: any) => (
-                <Cell key={`cell-${entry?.name}`} fill={"#FF0A00"} />
-              ))}
+              {dietData.map((entry: any, index: any) => {
+                if (entry.caloriesBelowLimit === null)
+                  return <Cell key={`cell-${entry?.name}`} fill="#F5F5F5" />;
+                return <Cell key={`cell-${entry?.name}`} fill="#808080" />;
+              })}
+            </Bar>
+            {/* Calories above limit - shown in red */}
+            <Bar
+              dataKey="caloriesAboveLimit"
+              stackId="diet"
+              barSize={20}
+              name="Calories Above Limit"
+              isAnimationActive={false}
+              xAxisId={0}
+              offset={20}
+            >
+              {dietData.map((entry: any, index: any) => {
+                if (entry.caloriesAboveLimit === null)
+                  return <Cell key={`cell-${entry?.name}`} fill="#F5F5F5" />;
+                return <Cell key={`cell-${entry?.name}`} fill="#FF0A00" />;
+              })}
             </Bar>
             <Bar
               dataKey="remaining"
@@ -320,16 +355,6 @@ const DietChart = (props: Props) => {
               xAxisId={0}
               offset={20}
             />
-            <Bar
-              dataKey="noData"
-              stackId="diet"
-              barSize={20}
-              name="No Data"
-              isAnimationActive={false}
-              fill="#F5F5F5"
-              xAxisId={0}
-              offset={20}
-            />
             <Line
               type="monotone"
               dataKey="target"
@@ -338,7 +363,6 @@ const DietChart = (props: Props) => {
               isAnimationActive={false}
               dot={false}
             />
-            {generateMonthReferenceLines()}
           </ComposedChart>
         </ResponsiveContainer>
       </div>

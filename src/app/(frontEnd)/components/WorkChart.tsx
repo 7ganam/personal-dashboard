@@ -178,9 +178,11 @@ const WorkChart = (props: Props) => {
             <Button
               variant="contained"
               onClick={handleClick}
-              startIcon={<CalendarMonthIcon />}
               size="small"
-            ></Button>
+              className="min-w-[40px]"
+            >
+              <CalendarMonthIcon />
+            </Button>
             <Popover
               open={open}
               anchorEl={anchorEl}
