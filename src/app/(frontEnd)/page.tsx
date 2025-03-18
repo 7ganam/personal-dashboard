@@ -116,6 +116,12 @@ export default function NotionPage() {
             </div>
           </div>
 
+          <div className="aspect-square">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[350px] pt-4 max-w-[400px]">
+              <TStrike />
+            </div>
+          </div>
+
           {/* Cell 4 - Work Chart */}
           <div className="aspect-square">
             <div className="w-full h-full p-4 bg-gray-100 min-h-[350px] pt-4 max-w-[400px]">
@@ -125,7 +131,7 @@ export default function NotionPage() {
 
           {/* Cell 5 - T Strike */}
           <div className="aspect-square">
-            <div className="w-full h-full p-4 bg-gray-100 min-h-[450px] pt-10 px-10 max-w-[400px]">
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[350px] pt-4 max-w-[400px]">
               <TStrike />
             </div>
           </div>
