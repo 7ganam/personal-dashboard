@@ -10,7 +10,7 @@ import TStrike from "./components/TStrike/TStrike";
 import DayViewCard from "./components/dayView/DayViewCard";
 import SportsStrike from "./components/SportsStrike/SportsStrike";
 import RunningChart from "./components/RunningChart";
-
+import WebClipsCountChart from "./components/WebClipsCountChart";
 export default function NotionPage() {
   //#region =======================fetch the thoughts==========================
   const [thoughts, setThoughts] = useState<
@@ -54,27 +54,6 @@ export default function NotionPage() {
   const [clips, setClips] = useState<any>([]);
 
   const [errorClips, setErrorClips] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchClips() {
-      try {
-        const response = await fetch("/api/notion/webclips");
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const result = await response.json();
-        setClips(result.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setErrorClips(
-          error instanceof Error ? error.message : "An error occurred"
-        );
-        setClips([]);
-      }
-    }
-
-    fetchClips();
-  }, []);
 
   const unprocessedClips = clips?.filter(
     (item: any) => !item.properties.state?.select?.name
@@ -144,7 +123,9 @@ export default function NotionPage() {
             </div>
           </div>
           <div className="aspect-square">
-            <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]"></div>
+            <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]">
+              <WebClipsCountChart target={0} />
+            </div>
           </div>
           <div className="aspect-square">
             <div className="w-full h-full p-4 bg-gray-100 min-h-[300px] pt-4 max-w-[400px]"></div>

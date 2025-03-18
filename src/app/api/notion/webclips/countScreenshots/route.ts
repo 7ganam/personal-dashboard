@@ -6,11 +6,17 @@ const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 });
 
-export async function GET() {
+export async function POST(request: Request) {
   try {
-    const webclipsCountScreenShot =
-      await fetchWebclipsAndUpdateCountScreenShot();
-    return NextResponse.json({ webclipsCountScreenShot });
+    const { startDate, endDate, requestNextCursor } = await request.json();
+    const { results, hasMore, nextCursor, notionResponse } =
+      await fetchWebclipsAndUpdateCountScreenShot(
+        startDate,
+        endDate,
+        requestNextCursor
+      );
+
+    return NextResponse.json({ results, hasMore, nextCursor, notionResponse });
   } catch (error) {
     console.error("Error fetching Notion webclips count:", error);
     return NextResponse.json(

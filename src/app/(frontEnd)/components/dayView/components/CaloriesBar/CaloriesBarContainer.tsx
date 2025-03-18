@@ -23,7 +23,6 @@ function CaloriesBarContainer({}: Props) {
   const [errorDietData, setErrorDietData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
-  console.log({ startDate, endDate });
   useEffect(() => {
     fetchDietData(
       startDate,

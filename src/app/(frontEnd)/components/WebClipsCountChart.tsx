@@ -24,7 +24,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
 import { fetchWebclipsCounts } from "../apiRequests/webclips-requests";
 type Props = {
-  weightTarget: number;
+  target: number;
 };
 
 const WebClipsCountChart = (props: Props) => {
@@ -41,11 +41,28 @@ const WebClipsCountChart = (props: Props) => {
   ); // Default to first day of current month
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(tomorrow)); // Default to tomorrow
-  console.log({ endDate });
-  const [weight, setWeight] = useState<any>([]);
-  const [errorWeight, setErrorWeight] = useState<string | null>(null);
+  const [webclipsCounts, setWebclipsCounts] = useState<any>([]);
+  const [errorWebclipsCounts, setErrorWebclipsCounts] = useState<string | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
+
+  useEffect(() => {
+    fetchWebclipsCounts(
+      startDate,
+      endDate,
+      setIsLoading,
+      setWebclipsCounts,
+      setErrorWebclipsCounts
+    );
+  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
+
+  const sortedWebclipsCounts = webclipsCounts.sort((a: any, b: any) => {
+    const dateA = new Date(a.properties.Date.date.start);
+    const dateB = new Date(b.properties.Date.date.start);
+    return dateA.getTime() - dateB.getTime();
+  });
 
   // Add state for the popover
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -59,24 +76,14 @@ const WebClipsCountChart = (props: Props) => {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    fetchWebclipsCounts(startDate, endDate);
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
+  const { xAxis, yAxis } = calculateXandYAxis(sortedWebclipsCounts, startDate);
 
-  const sortedWeightData = weight.sort((a: any, b: any) => {
-    const dateA = new Date(a.properties.Date.date.start);
-    const dateB = new Date(b.properties.Date.date.start);
-    return dateA.getTime() - dateB.getTime();
-  });
-
-  const { xAxis, yAxis } = calculateXandYAxis(sortedWeightData, startDate);
-
-  const weightData = xAxis.map((date: any) => {
+  const webclipsData = xAxis.map((date: any) => {
     return {
       name: new Date(date).getTime(), // Convert to timestamp for proper date scaling
       displayDate: date, // Keep original date for display
       uv: yAxis[xAxis.indexOf(date)],
-      goal: 75,
+      goal: props.target,
     };
   });
 
@@ -215,7 +222,7 @@ const WebClipsCountChart = (props: Props) => {
           <ComposedChart
             width={500}
             height={400}
-            data={weightData}
+            data={webclipsData}
             margin={{
               top: 30,
               right: 10,
@@ -278,7 +285,9 @@ const WebClipsCountChart = (props: Props) => {
               ticks={Array.from(
                 {
                   length: Math.ceil(
-                    Math.max(...weightData.map((d: any) => d.uv || 0)) - 73 + 1
+                    Math.max(...webclipsData.map((d: any) => d.uv || 0)) -
+                      73 +
+                      1
                   ),
                 },
                 (_, i) => 73 + i
@@ -291,7 +300,7 @@ const WebClipsCountChart = (props: Props) => {
             {Array.from(
               {
                 length: Math.ceil(
-                  Math.max(...weightData.map((d: any) => d.uv || 0)) - 73 + 1
+                  Math.max(...webclipsData.map((d: any) => d.uv || 0)) - 73 + 1
                 ),
               },
               (_, i) => 73 + i
@@ -337,14 +346,14 @@ const WebClipsCountChart = (props: Props) => {
 export default WebClipsCountChart;
 //#region ======================= Helper Functions =========================
 
-const calculateXandYAxis = (sortedWeightData: any, startDate: any) => {
-  const formattedDates = sortedWeightData.map((item: any) =>
+const calculateXandYAxis = (sortedWebclipsCounts: any, startDate: any) => {
+  const formattedDates = sortedWebclipsCounts.map((item: any) =>
     formatDateFromIsoString(item.properties.Date.date.start)
   );
 
   const xAxis = formattedDates;
-  const yAxis = sortedWeightData.map((item: any) => {
-    return item?.properties?.weight?.title[0]?.plain_text;
+  const yAxis = sortedWebclipsCounts.map((item: any) => {
+    return item?.properties?.count?.number;
   });
 
   //if the xAxis doesn't start with startDate add a point with xAxis value as startDate and yAxis value as 0

@@ -42,7 +42,6 @@ const WeightChart = (props: Props) => {
   ); // Default to first day of current month
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(tomorrow)); // Default to tomorrow
-  console.log({ endDate });
   const [weight, setWeight] = useState<any>([]);
   const [errorWeight, setErrorWeight] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);

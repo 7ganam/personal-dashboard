@@ -43,7 +43,6 @@ const DietChart = (props: Props) => {
     formatDateToYYYYMMDD(firstDayOfMonth)
   ); // Default to first day of current month
 
-  console.log({ endDate: formatDateToYYYYMMDD(today) });
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(today)); // Default to today
   const [diet, setDiet] = useState<any>([]);
   const [errorDiet, setErrorDiet] = useState<string | null>(null);

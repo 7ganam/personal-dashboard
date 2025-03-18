@@ -30,13 +30,16 @@ export const fetchWebclipsCounts = async (
         throw new Error("Failed to fetch data");
       }
       const result = await response.json();
-      allResults = [...allResults, ...result.data];
+      console.log("result", result);
+      allResults = [...allResults, ...result.results];
       hasMore = result.hasMore;
       nextCursor = result.nextCursor;
       setData(allResults);
     } catch (error) {
+      console.log("error---", error);
       console.error("Error fetching data:", error);
       setError(error instanceof Error ? error.message : "An error occurred");
+      hasMore = false;
       setData([]);
     } finally {
     }
