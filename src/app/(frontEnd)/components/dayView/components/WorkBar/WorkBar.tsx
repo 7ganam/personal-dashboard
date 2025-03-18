@@ -10,7 +10,7 @@ function WorkBar({ targetWorkHours, currentWorkHours }: Props) {
 
   const progressBarStyle = {
     width: remainingWorkHours > 0 ? `${workPercentage}%` : "100%",
-    backgroundColor: remainingWorkHours > 0 ? "#4CAF50" : "red",
+    backgroundColor: "#4CAF50",
   };
 
   const remainingProgressBarStyle = {
@@ -27,7 +27,9 @@ function WorkBar({ targetWorkHours, currentWorkHours }: Props) {
             className="ml-auto font-bold text-sm border border-gray-300 rounded-md px-2"
             style={{ color: remainingWorkHours > 0 ? "red" : "green" }}
           >
-            {remainingWorkHours * -1}
+            {remainingWorkHours > 0
+              ? remainingWorkHours * -1
+              : `+${Math.abs(remainingWorkHours)}`}
           </div>
         </div>
         <div className="w-full bg-gray-100 rounded-md flex">
@@ -41,7 +43,8 @@ function WorkBar({ targetWorkHours, currentWorkHours }: Props) {
       <div
         className="w-[40px] aspect-square rounded-md flex items-center justify-center"
         style={{
-          backgroundColor: remainingWorkHours > 0 ? "red" : "#4CAF50",
+          backgroundColor:
+            currentWorkHours > targetWorkHours ? "#4CAF50" : "red",
         }}
       >
         <TrendingUpIcon className="text-white" />
