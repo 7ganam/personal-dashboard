@@ -318,7 +318,7 @@ const calculateXandYAxis = (sortedWeightData: any, startDate: any) => {
 
   const xAxis = formattedDates;
   const yAxis = sortedWeightData.map((item: any) => {
-    return item?.properties?.weight?.number;
+    return item?.properties?.weight?.title[0]?.plain_text;
   });
 
   //if the xAxis doesn't start with startDate add a point with xAxis value as startDate and yAxis value as 0
