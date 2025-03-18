@@ -10,7 +10,7 @@ function CaloriesBar({ targetCalories, currentCalories }: Props) {
 
   const progressBarStyle = {
     width: remainingCalories > 0 ? `${caloriesPercentage}%` : "100%",
-    backgroundColor: "red",
+    backgroundColor: currentCalories > targetCalories ? "red" : "#808080",
   };
 
   const remainingProgressBarStyle = {

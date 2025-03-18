@@ -11,7 +11,7 @@ function SleepBar({ targetSleepHours, currentSleepHours }: Props) {
 
   const progressBarStyle = {
     width: remainingSleepHours > 0 ? `${sleepPercentage}%` : "100%",
-    backgroundColor: "red",
+    backgroundColor: currentSleepHours > targetSleepHours ? "red" : "#808080",
   };
 
   const remainingProgressBarStyle = {
