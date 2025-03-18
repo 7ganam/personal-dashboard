@@ -356,7 +356,7 @@ const WeightChart = (props: Props) => {
               stroke="blue"
               name="Target Line"
               isAnimationActive={false}
-              dot={{ r: 4, fill: "#2E7D32" }}
+              dot={{ r: 2, fill: "#2E7D32" }}
             />
             <Line
               type="monotone"
