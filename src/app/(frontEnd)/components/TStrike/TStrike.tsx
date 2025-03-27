@@ -103,7 +103,7 @@ const TStrike = (props: any) => {
           }}
           modifiersClassNames={{
             tv: "bg-red-500",
-            t: "bg-green-100",
+            t: "bg-green-300",
             gg: "bg-green-500",
           }}
           className="rounded-md border"
