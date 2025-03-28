@@ -18,6 +18,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button, Popover } from "@mui/material";
+import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
 import { useSportsStrikeData } from "../apiRequests/sports-requests";
@@ -54,10 +55,11 @@ const RunningChart = (props: Props) => {
   };
 
   // Use React Query hook
-  const { data: running = [], isLoading } = useSportsStrikeData(
-    startDate,
-    endDate
-  );
+  const {
+    data: running = [],
+    isLoading,
+    refetch,
+  } = useSportsStrikeData(startDate, endDate);
 
   const sortedRunningData = running.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
@@ -151,6 +153,19 @@ const RunningChart = (props: Props) => {
               }}
             >
               <CalendarMonthIcon sx={{ fontSize: 16 }} />
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => refetch()}
+              sx={{
+                minWidth: "24px",
+                width: "24px",
+                height: "24px",
+                padding: 0,
+              }}
+            >
+              <RotateLeftIcon sx={{ fontSize: 16 }} />
             </Button>
             <Popover
               open={open}

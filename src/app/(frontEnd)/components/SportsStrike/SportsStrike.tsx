@@ -3,6 +3,7 @@ import { Calendar } from "./components/ui/calendar";
 import React, { useState } from "react";
 import { formatDateFromIsoString } from "../../utils/utils";
 import { useSportsStrikeData } from "../../apiRequests/sports-requests";
+import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 
 const SportsStrike = (props: any) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -27,10 +28,11 @@ const SportsStrike = (props: any) => {
     lastDayOfMonth.toISOString()
   );
 
-  const { data: sports = [], isLoading } = useSportsStrikeData(
-    formattedFirstDayOfMonth,
-    formattedLastDayOfMonth
-  );
+  const {
+    data: sports = [],
+    isLoading,
+    refetch,
+  } = useSportsStrikeData(formattedFirstDayOfMonth, formattedLastDayOfMonth);
 
   const { sportsDates } = getDatesFromSports(sports);
 
@@ -39,6 +41,19 @@ const SportsStrike = (props: any) => {
       {/* Header Section - Title and Reload Button */}
       <div className="mb-4 flex gap-2 justify-end px-0 w-full">
         <div className="text-sm font-semibold grow">Sports strike</div>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => refetch()}
+          sx={{
+            minWidth: "24px",
+            width: "24px",
+            height: "24px",
+            padding: 0,
+          }}
+        >
+          <RotateLeftIcon sx={{ fontSize: 16 }} />
+        </Button>
       </div>
 
       {/* Calendar Container */}

@@ -56,7 +56,11 @@ const SleepChart = (props: Props) => {
     setAnchorEl(null);
   };
 
-  const { data: sleep = [], isLoading } = useSleepData(startDate, endDate);
+  const {
+    data: sleep = [],
+    isLoading,
+    refetch,
+  } = useSleepData(startDate, endDate);
 
   const sortedSleepData = sleep.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
@@ -201,6 +205,19 @@ const SleepChart = (props: Props) => {
               }}
             >
               <CalendarMonthIcon sx={{ fontSize: 16 }} />
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => refetch()}
+              sx={{
+                minWidth: "24px",
+                width: "24px",
+                height: "24px",
+                padding: 0,
+              }}
+            >
+              <RotateLeftIcon sx={{ fontSize: 16 }} />
             </Button>
             <Popover
               open={open}

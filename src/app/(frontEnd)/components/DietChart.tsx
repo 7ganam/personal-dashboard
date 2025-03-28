@@ -257,9 +257,7 @@ const DietChart = (props: Props) => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => {
-                refetch();
-              }}
+              onClick={() => refetch()}
               sx={{
                 minWidth: "24px",
                 width: "24px",
@@ -267,7 +265,7 @@ const DietChart = (props: Props) => {
                 padding: 0,
               }}
             >
-              <RotateLeftIcon />
+              <RotateLeftIcon sx={{ fontSize: 16 }} />
             </Button>
           </div>
         </div>

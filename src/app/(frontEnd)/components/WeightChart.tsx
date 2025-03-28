@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ComposedChart,
   Line,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-  Cell,
 } from "recharts";
 import { timeFormat } from "d3-time-format";
 
@@ -23,6 +21,7 @@ import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
+import { useWeightData } from "../apiRequests/weight-requests";
 
 type Props = {
   weightTarget: number;
@@ -42,10 +41,6 @@ const WeightChart = (props: Props) => {
   ); // Default to first day of current month
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(tomorrow)); // Default to tomorrow
-  const [weight, setWeight] = useState<any>([]);
-  const [errorWeight, setErrorWeight] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
 
   // Add state for the popover
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -59,48 +54,12 @@ const WeightChart = (props: Props) => {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    async function fetchWeightPages(startDate: string, endDate: string) {
-      setIsLoading(true);
-      let hasMore = true;
-      let nextCursor = undefined;
-      let allResults: any[] = [];
-      while (hasMore) {
-        try {
-          const response: any = await fetch("/api/notion/weight", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              startDate,
-              endDate,
-              requestNextCursor: nextCursor,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch data");
-          }
-          const result = await response.json();
-          allResults = [...allResults, ...result.data];
-          hasMore = result.hasMore;
-          nextCursor = result.nextCursor;
-          setWeight(allResults);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setErrorWeight(
-            error instanceof Error ? error.message : "An error occurred"
-          );
-          setWeight([]);
-        } finally {
-        }
-      }
-      setIsLoading(false);
-    }
-
-    fetchWeightPages(startDate, endDate);
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
+  const {
+    data: weight = [],
+    isLoading,
+    error: errorWeight,
+    refetch,
+  } = useWeightData(startDate, endDate);
 
   const sortedWeightData = weight.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
@@ -115,7 +74,7 @@ const WeightChart = (props: Props) => {
       name: new Date(date).getTime(), // Convert to timestamp for proper date scaling
       displayDate: date, // Keep original date for display
       uv: yAxis[xAxis.indexOf(date)],
-      goal: 75,
+      goal: props.weightTarget,
     };
   });
 
@@ -232,9 +191,7 @@ const WeightChart = (props: Props) => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => {
-                setReloadCount(reloadCount + 1);
-              }}
+              onClick={() => refetch()}
               sx={{
                 minWidth: "24px",
                 width: "24px",
@@ -242,7 +199,7 @@ const WeightChart = (props: Props) => {
                 padding: 0,
               }}
             >
-              <RotateLeftIcon />
+              <RotateLeftIcon sx={{ fontSize: 16 }} />
             </Button>
           </div>
         </div>
@@ -353,7 +310,7 @@ const WeightChart = (props: Props) => {
               type="monotone"
               dataKey="uv"
               stroke="blue"
-              name="Target Line"
+              name="Weight"
               isAnimationActive={false}
               dot={{ r: 2, fill: "#2E7D32" }}
             />
