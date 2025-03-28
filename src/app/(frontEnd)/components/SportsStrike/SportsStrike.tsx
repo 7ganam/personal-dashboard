@@ -64,23 +64,6 @@ const SportsStrike = (props: any) => {
 
       {/* Calendar Container */}
       <div className="w-full relative max-[375px]:px-1 min-[375px]:px-8 max-[777px]:px-8 min-[777px]:px-0 min-[1457px]:px-4 min-[1577px]:px-8">
-        {/* Loading Indicator */}
-        {isLoading && (
-          <div className="absolute inset-0 flex items-start justify-start z-10">
-            <Box
-              sx={{
-                display: "flex",
-                p: 1,
-                borderRadius: 1,
-                boxShadow: 3,
-                bgcolor: "white",
-              }}
-            >
-              <CircularProgress size={10} />
-            </Box>
-          </div>
-        )}
-
         {/* Calendar Component */}
         <Calendar
           mode="single"

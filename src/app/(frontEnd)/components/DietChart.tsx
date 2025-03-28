@@ -186,23 +186,6 @@ const DietChart = (props: Props) => {
 
   return (
     <div className="w-full h-full relative ">
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="h-5 w-5  absolute top-0 left-0 flex items-start justify-start z-10">
-          <Box
-            sx={{
-              display: "flex",
-              p: 1,
-              borderRadius: 1,
-              boxShadow: 3,
-              bgcolor: "white",
-            }}
-          >
-            <CircularProgress size={10} />
-          </Box>
-        </div>
-      )}
-
       {/* Date pickers + titles */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <div className="mb-4 flex justify-between items-center px-0 ">
@@ -267,7 +250,7 @@ const DietChart = (props: Props) => {
                 position: "relative",
               }}
             >
-              {isFetching ? (
+              {isLoading || isFetching ? (
                 <CircularProgress size={10} sx={{ color: "white" }} />
               ) : (
                 <RotateLeftIcon sx={{ fontSize: 16 }} />

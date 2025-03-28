@@ -120,23 +120,6 @@ const RunningChart = (props: Props) => {
 
   return (
     <div className="w-full h-full relative">
-      {/* Loading indicator */}
-      {isLoading && (
-        <div className="h-5 w-5 absolute top-0 left-0 flex items-start justify-start z-10">
-          <Box
-            sx={{
-              display: "flex",
-              p: 1,
-              borderRadius: 1,
-              boxShadow: 3,
-              bgcolor: "white",
-            }}
-          >
-            <CircularProgress size={10} />
-          </Box>
-        </div>
-      )}
-
       {/* Date pickers + titles */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <div className="mb-4 flex justify-between items-center px-0">
@@ -154,24 +137,6 @@ const RunningChart = (props: Props) => {
               }}
             >
               <CalendarMonthIcon sx={{ fontSize: 16 }} />
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => refetch()}
-              sx={{
-                minWidth: "24px",
-                width: "24px",
-                height: "24px",
-                padding: 0,
-                position: "relative",
-              }}
-            >
-              {isFetching ? (
-                <CircularProgress size={10} sx={{ color: "white" }} />
-              ) : (
-                <RotateLeftIcon sx={{ fontSize: 16 }} />
-              )}
             </Button>
             <Popover
               open={open}
@@ -207,6 +172,24 @@ const RunningChart = (props: Props) => {
                 />
               </div>
             </Popover>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => refetch()}
+              sx={{
+                minWidth: "24px",
+                width: "24px",
+                height: "24px",
+                padding: 0,
+                position: "relative",
+              }}
+            >
+              {isLoading || isFetching ? (
+                <CircularProgress size={10} sx={{ color: "white" }} />
+              ) : (
+                <RotateLeftIcon sx={{ fontSize: 16 }} />
+              )}
+            </Button>
           </div>
         </div>
       </LocalizationProvider>
