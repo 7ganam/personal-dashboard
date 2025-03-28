@@ -60,6 +60,8 @@ const WorkChart = (props: Props) => {
   const {
     data: work = [],
     isLoading,
+    isFetching,
+    error: errorWork,
     refetch,
   } = useWorkData(startDate, endDate);
 
@@ -208,9 +210,14 @@ const WorkChart = (props: Props) => {
                 width: "24px",
                 height: "24px",
                 padding: 0,
+                position: "relative",
               }}
             >
-              <RotateLeftIcon sx={{ fontSize: 16 }} />
+              {isFetching ? (
+                <CircularProgress size={10} sx={{ color: "white" }} />
+              ) : (
+                <RotateLeftIcon sx={{ fontSize: 16 }} />
+              )}
             </Button>
             <Popover
               open={open}

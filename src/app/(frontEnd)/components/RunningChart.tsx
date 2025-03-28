@@ -58,6 +58,7 @@ const RunningChart = (props: Props) => {
   const {
     data: running = [],
     isLoading,
+    isFetching,
     refetch,
   } = useSportsStrikeData(startDate, endDate);
 
@@ -163,9 +164,14 @@ const RunningChart = (props: Props) => {
                 width: "24px",
                 height: "24px",
                 padding: 0,
+                position: "relative",
               }}
             >
-              <RotateLeftIcon sx={{ fontSize: 16 }} />
+              {isFetching ? (
+                <CircularProgress size={10} sx={{ color: "white" }} />
+              ) : (
+                <RotateLeftIcon sx={{ fontSize: 16 }} />
+              )}
             </Button>
             <Popover
               open={open}

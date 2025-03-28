@@ -1,9 +1,9 @@
 import { Box, Button, CircularProgress } from "@mui/material";
 import { Calendar } from "./components/ui/calendar";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import { formatDateFromIsoString } from "../../utils/utils";
-import { fetchTStrikeData } from "../../apiRequests/t-requests";
+import { useTStrikeData } from "../../apiRequests/t-requests";
 
 const TStrike = (props: any) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -28,27 +28,15 @@ const TStrike = (props: any) => {
     lastDayOfMonth.toISOString()
   );
 
-  //#region =============================fetching data =========================================
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
-  const [t, setT] = useState<any>([]);
-  const [errorT, setErrorT] = useState<string | null>(null);
+  const {
+    data: t = [],
+    isLoading,
+    isFetching,
+    refetch,
+  } = useTStrikeData(formattedFirstDayOfMonth, formattedLastDayOfMonth);
 
   const { tDates, tvDates, freeDates } = getDatesFromT(t);
 
-  useEffect(() => {
-    fetchTStrikeData(
-      formattedFirstDayOfMonth,
-      formattedLastDayOfMonth,
-      setIsLoading,
-      setT,
-      setErrorT
-    );
-  }, [formattedFirstDayOfMonth, formattedLastDayOfMonth, reloadCount]); // Re-fetch when dates change
-  //#endregion
-
-  //#region =============================render =========================================
   return (
     <div className="w-full h-full">
       {/* Header Section - Title and Reload Button */}
@@ -57,17 +45,20 @@ const TStrike = (props: any) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => {
-            setReloadCount(reloadCount + 1);
-          }}
+          onClick={() => refetch()}
           sx={{
             minWidth: "24px",
             width: "24px",
             height: "24px",
             padding: 0,
+            position: "relative",
           }}
         >
-          <RotateLeftIcon sx={{ fontSize: 16 }} />
+          {isFetching ? (
+            <CircularProgress size={10} sx={{ color: "white" }} />
+          ) : (
+            <RotateLeftIcon sx={{ fontSize: 16 }} />
+          )}
         </Button>
       </div>
 
@@ -111,10 +102,7 @@ const TStrike = (props: any) => {
       </div>
     </div>
   );
-  //#endregion
 };
-
-export default TStrike;
 
 //#region =============================helper functions =========================================
 
@@ -166,3 +154,5 @@ const getDatesFromT = (
 };
 
 //#endregion
+
+export default TStrike;

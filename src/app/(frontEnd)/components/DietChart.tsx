@@ -49,6 +49,7 @@ const DietChart = (props: Props) => {
   const {
     data: diet = [],
     isLoading,
+    isFetching,
     error: errorDiet,
     refetch,
   } = useDietData(startDate, endDate);
@@ -263,9 +264,14 @@ const DietChart = (props: Props) => {
                 width: "24px",
                 height: "24px",
                 padding: 0,
+                position: "relative",
               }}
             >
-              <RotateLeftIcon sx={{ fontSize: 16 }} />
+              {isFetching ? (
+                <CircularProgress size={10} sx={{ color: "white" }} />
+              ) : (
+                <RotateLeftIcon sx={{ fontSize: 16 }} />
+              )}
             </Button>
           </div>
         </div>
