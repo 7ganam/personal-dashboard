@@ -23,7 +23,7 @@ import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
-import { fetchDietData } from "../apiRequests/diet-requests";
+import { useDietData } from "../apiRequests/diet-requests";
 
 type Props = { caloriesLimit: number };
 
@@ -44,13 +44,14 @@ const DietChart = (props: Props) => {
   ); // Default to first day of current month
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(today)); // Default to today
-  const [diet, setDiet] = useState<any>([]);
-  const [errorDiet, setErrorDiet] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
-  useEffect(() => {
-    fetchDietData(startDate, endDate, setIsLoading, setDiet, setErrorDiet);
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
+
+  const {
+    data: diet = [],
+    isLoading,
+    error: errorDiet,
+    refetch,
+  } = useDietData(startDate, endDate);
 
   //#endregion
 
@@ -190,7 +191,6 @@ const DietChart = (props: Props) => {
           <Box
             sx={{
               display: "flex",
-
               p: 1,
               borderRadius: 1,
               boxShadow: 3,
@@ -258,7 +258,7 @@ const DietChart = (props: Props) => {
               variant="contained"
               color="primary"
               onClick={() => {
-                setReloadCount(reloadCount + 1);
+                refetch();
               }}
               sx={{
                 minWidth: "24px",

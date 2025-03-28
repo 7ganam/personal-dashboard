@@ -1,9 +1,5 @@
 import { Client } from "@notionhq/client";
 
-const notionClient = new Client({
-  auth: process.env.NOTION_API_KEY,
-});
-
 export const fetchTDataNotion = async (
   startDate: string,
   endDate: string,
@@ -13,6 +9,10 @@ export const fetchTDataNotion = async (
   let hasMore = true;
   let nextCursor = requestNextCursor ?? undefined;
   let notionResponse: any = [];
+
+  const notionClient = new Client({
+    auth: process.env.NOTION_API_KEY,
+  });
 
   console.time("Notion API Request"); // Start timing
   const response = await notionClient.databases.query({

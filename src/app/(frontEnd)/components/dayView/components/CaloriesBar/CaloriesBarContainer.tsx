@@ -1,5 +1,5 @@
-import { fetchDietData } from "@/app/(frontEnd)/apiRequests/diet-requests";
-import React, { useEffect, useState } from "react";
+import { useDietData } from "@/app/(frontEnd)/apiRequests/diet-requests";
+import React, { useState } from "react";
 import CaloriesBar from "./CaloriesBar";
 import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
 
@@ -14,24 +14,10 @@ function CaloriesBarContainer({}: Props) {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const [startDate, setStartDate] = useState(
-    formatDateFromDateObject(todayDate)
-  );
+  const [startDate] = useState(formatDateFromDateObject(todayDate));
+  const [endDate] = useState(formatDateFromDateObject(tomorrow));
 
-  const [endDate, setEndDate] = useState(formatDateFromDateObject(tomorrow));
-  const [dietData, setDietData] = useState<any>([]);
-  const [errorDietData, setErrorDietData] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
-  useEffect(() => {
-    fetchDietData(
-      startDate,
-      endDate,
-      setIsLoading,
-      setDietData,
-      setErrorDietData
-    );
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
+  const { data: dietData = [] } = useDietData(startDate, endDate);
 
   //#endregion
 

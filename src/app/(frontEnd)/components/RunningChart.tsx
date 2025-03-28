@@ -1,15 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ComposedChart,
   Line,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-  Cell,
 } from "recharts";
 import { timeFormat } from "d3-time-format";
 
@@ -20,10 +18,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button, Popover } from "@mui/material";
-import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
-import { fetchSportsStrikeData } from "../apiRequests/sports-requests";
+import { useSportsStrikeData } from "../apiRequests/sports-requests";
 
 type Props = {
   runningTarget: number;
@@ -56,25 +53,11 @@ const RunningChart = (props: Props) => {
     setAnchorEl(null);
   };
 
-  //#region =============================fetching data =========================================
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
-  const [running, setRunning] = useState<any>([]);
-  const [errorRunning, setErrorRunning] = useState<string | null>(null);
-
-  const { runningDates } = getDatesFromRunning(running);
-
-  useEffect(() => {
-    fetchSportsStrikeData(
-      startDate,
-      endDate,
-      setIsLoading,
-      setRunning,
-      setErrorRunning
-    );
-  }, [startDate, endDate, reloadCount]);
-  //#endregion
+  // Use React Query hook
+  const { data: running = [], isLoading } = useSportsStrikeData(
+    startDate,
+    endDate
+  );
 
   const sortedRunningData = running.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
@@ -203,21 +186,6 @@ const RunningChart = (props: Props) => {
                 />
               </div>
             </Popover>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                setReloadCount(reloadCount + 1);
-              }}
-              sx={{
-                minWidth: "24px",
-                width: "24px",
-                height: "24px",
-                padding: 0,
-              }}
-            >
-              <RotateLeftIcon />
-            </Button>
           </div>
         </div>
       </LocalizationProvider>
@@ -327,7 +295,7 @@ const RunningChart = (props: Props) => {
               type="monotone"
               dataKey="uv"
               stroke="blue"
-              name="Target Line"
+              name="Running Duration"
               isAnimationActive={false}
               dot={{ r: 2, fill: "#2E7D32" }}
             />

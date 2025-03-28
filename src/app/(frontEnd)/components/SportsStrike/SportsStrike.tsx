@@ -1,9 +1,8 @@
 import { Box, Button, CircularProgress } from "@mui/material";
 import { Calendar } from "./components/ui/calendar";
-import React, { useEffect, useState } from "react";
-import RotateLeftIcon from "@mui/icons-material/RotateLeft";
+import React, { useState } from "react";
 import { formatDateFromIsoString } from "../../utils/utils";
-import { fetchSportsStrikeData } from "../../apiRequests/sports-requests";
+import { useSportsStrikeData } from "../../apiRequests/sports-requests";
 
 const SportsStrike = (props: any) => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -28,47 +27,18 @@ const SportsStrike = (props: any) => {
     lastDayOfMonth.toISOString()
   );
 
-  //#region =============================fetching data =========================================
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
-  const [sports, setSports] = useState<any>([]);
-  const [errorSports, setErrorSports] = useState<string | null>(null);
+  const { data: sports = [], isLoading } = useSportsStrikeData(
+    formattedFirstDayOfMonth,
+    formattedLastDayOfMonth
+  );
 
   const { sportsDates } = getDatesFromSports(sports);
 
-  useEffect(() => {
-    fetchSportsStrikeData(
-      formattedFirstDayOfMonth,
-      formattedLastDayOfMonth,
-      setIsLoading,
-      setSports,
-      setErrorSports
-    );
-  }, [formattedFirstDayOfMonth, formattedLastDayOfMonth, reloadCount]);
-  //#endregion
-
-  //#region =============================render =========================================
   return (
     <div className="w-full h-full">
       {/* Header Section - Title and Reload Button */}
       <div className="mb-4 flex gap-2 justify-end px-0 w-full">
         <div className="text-sm font-semibold grow">Sports strike</div>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            setReloadCount(reloadCount + 1);
-          }}
-          sx={{
-            minWidth: "24px",
-            width: "24px",
-            height: "24px",
-            padding: 0,
-          }}
-        >
-          <RotateLeftIcon sx={{ fontSize: 16 }} />
-        </Button>
       </div>
 
       {/* Calendar Container */}
@@ -109,7 +79,6 @@ const SportsStrike = (props: any) => {
       </div>
     </div>
   );
-  //#endregion
 };
 
 //#region =============================helper functions =========================================

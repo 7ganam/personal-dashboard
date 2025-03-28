@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ComposedChart,
   Line,
@@ -23,7 +23,7 @@ import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
-import { fetchSleepData } from "../apiRequests/sleep-requests";
+import { useSleepData } from "../apiRequests/sleep-requests";
 
 type Props = { sleepLimit: number };
 
@@ -43,10 +43,6 @@ const SleepChart = (props: Props) => {
   ); // Default to first day of current month
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(today)); // Default to tomorrow
-  const [sleep, setSleep] = useState<any>([]);
-  const [errorSleep, setErrorSleep] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
 
   // Add state for the popover
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -60,48 +56,7 @@ const SleepChart = (props: Props) => {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    async function fetchSleepPages(startDate: string, endDate: string) {
-      setIsLoading(true);
-      let hasMore = true;
-      let nextCursor = undefined;
-      let allResults: any[] = [];
-      while (hasMore) {
-        try {
-          const response: any = await fetch("/api/notion/sleep", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              startDate,
-              endDate,
-              requestNextCursor: nextCursor,
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch data");
-          }
-          const result = await response.json();
-          allResults = [...allResults, ...result.data];
-          hasMore = result.hasMore;
-          nextCursor = result.nextCursor;
-          setSleep(allResults);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setErrorSleep(
-            error instanceof Error ? error.message : "An error occurred"
-          );
-          setSleep([]);
-        } finally {
-        }
-      }
-      setIsLoading(false);
-    }
-
-    fetchSleepPages(startDate, endDate);
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
+  const { data: sleep = [], isLoading } = useSleepData(startDate, endDate);
 
   const sortedSleepData = sleep.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
@@ -209,6 +164,7 @@ const SleepChart = (props: Props) => {
 
     return referenceLines;
   };
+
   return (
     <div className="w-full h-full relative ">
       {/* Loading indicator */}
@@ -280,21 +236,6 @@ const SleepChart = (props: Props) => {
                 />
               </div>
             </Popover>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                setReloadCount(reloadCount + 1);
-              }}
-              sx={{
-                minWidth: "24px",
-                width: "24px",
-                height: "24px",
-                padding: 0,
-              }}
-            >
-              <RotateLeftIcon />
-            </Button>
           </div>
         </div>
       </LocalizationProvider>

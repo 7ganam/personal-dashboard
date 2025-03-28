@@ -1,6 +1,6 @@
-import { fetchSleepData } from "@/app/(frontEnd)/apiRequests/sleep-requests";
+import { useSleepData } from "@/app/(frontEnd)/apiRequests/sleep-requests";
 import { sleepDurationInDate } from "./helpers";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
 import SleepBar from "./SleepBar";
@@ -8,7 +8,6 @@ import SleepBar from "./SleepBar";
 type Props = {};
 
 function SleepBarContainer({}: Props) {
-  //#region ======================= fetch diet data =========================
   // Get todays date
   const today = new Date();
   const todayFormatted = formatDateFromDateObject(today);
@@ -20,26 +19,10 @@ function SleepBarContainer({}: Props) {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const [startDate, setStartDate] = useState(
-    formatDateFromDateObject(yesterday)
-  );
+  const [startDate] = useState(formatDateFromDateObject(yesterday));
+  const [endDate] = useState(formatDateFromDateObject(tomorrow));
 
-  const [endDate, setEndDate] = useState(formatDateFromDateObject(tomorrow));
-  const [sleepData, setSleepData] = useState<any>([]);
-  const [errorSleepData, setErrorSleepData] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
-  useEffect(() => {
-    fetchSleepData(
-      startDate,
-      endDate,
-      setIsLoading,
-      setSleepData,
-      setErrorSleepData
-    );
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
-
-  //#endregion
+  const { data: sleepData = [] } = useSleepData(startDate, endDate);
 
   const sleepHours = sleepDurationInDate(sleepData, startDate);
 

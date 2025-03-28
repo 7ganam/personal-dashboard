@@ -1,40 +1,18 @@
-import { fetchSportsStrikeData } from "@/app/(frontEnd)/apiRequests/sports-requests";
-import React, { useEffect, useState } from "react";
+import { useSportsStrikeData } from "@/app/(frontEnd)/apiRequests/sports-requests";
+import React, { useState } from "react";
 import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
 
 type Props = {};
 
 function SportsStrikeBox({}: Props) {
-  //#region ======================= fetch diet data =========================
   // Get todays date
   const today = new Date();
   const todayFormatted = formatDateFromDateObject(today);
 
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
+  const [startDate] = useState(formatDateFromDateObject(today));
+  const [endDate] = useState(formatDateFromDateObject(today));
 
-  // Get tomorrow's date
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const [startDate, setStartDate] = useState(formatDateFromDateObject(today));
-
-  const [endDate, setEndDate] = useState(formatDateFromDateObject(today));
-  const [workData, setWorkData] = useState<any>([]);
-  const [errorWorkData, setErrorWorkData] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
-  useEffect(() => {
-    fetchSportsStrikeData(
-      startDate,
-      endDate,
-      setIsLoading,
-      setWorkData,
-      setErrorWorkData
-    );
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
-
-  //#endregion
+  const { data: workData = [] } = useSportsStrikeData(startDate, endDate);
 
   const todayTStrikeState = strikeState(workData);
 

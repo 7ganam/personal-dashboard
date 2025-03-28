@@ -1,42 +1,24 @@
-import { fetchTStrikeData } from "@/app/(frontEnd)/apiRequests/t-requests";
-import React, { useEffect, useState } from "react";
-import WorkBar from "./TStrikeBox";
+import React, { useState } from "react";
+import { useTStrikeData } from "@/app/(frontEnd)/apiRequests/t-requests";
 import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
 import { workDurationInDate } from "../WorkBar/helpers";
 
 type Props = {};
 
 function TStrikeBox({}: Props) {
-  //#region ======================= fetch diet data =========================
-  // Get todays date
+  // Get today's date
   const today = new Date();
   const todayFormatted = formatDateFromDateObject(today);
 
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  // Get tomorrow's date
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
   const [startDate, setStartDate] = useState(formatDateFromDateObject(today));
-
   const [endDate, setEndDate] = useState(formatDateFromDateObject(today));
-  const [workData, setWorkData] = useState<any>([]);
-  const [errorWorkData, setErrorWorkData] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
-  useEffect(() => {
-    fetchTStrikeData(
-      startDate,
-      endDate,
-      setIsLoading,
-      setWorkData,
-      setErrorWorkData
-    );
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
 
-  //#endregion
+  // Use React Query hook
+  const {
+    data: workData = [],
+    isLoading,
+    error,
+  } = useTStrikeData(startDate, endDate);
 
   const todayTStrikeState = strikeState(workData);
 
@@ -48,7 +30,7 @@ function TStrikeBox({}: Props) {
 
   return (
     <div
-      className={` min-h-10 min-w-10 bg-gray-200 rounded-md flex items-center justify-center w-full h-full p-4 text-center ${strikeStateColor[todayTStrikeState]}`}
+      className={`min-h-10 min-w-10 bg-gray-200 rounded-md flex items-center justify-center w-full h-full p-4 text-center ${strikeStateColor[todayTStrikeState]}`}
       style={{ backgroundColor: strikeStateColor[todayTStrikeState] }}
     >
       <div className="flex items-center justify-center text-sm text-white font-bold">
