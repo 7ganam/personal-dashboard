@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ComposedChart,
   Line,
@@ -8,7 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-  Cell,
 } from "recharts";
 import { timeFormat } from "d3-time-format";
 
@@ -22,7 +21,8 @@ import { Button, Popover } from "@mui/material";
 import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
-import { fetchWebclipsCounts } from "../apiRequests/webclips-requests";
+import { useWebclipsCounts } from "../apiRequests/webclips-requests";
+
 type Props = {
   target: number;
 };
@@ -41,28 +41,6 @@ const WebClipsCountChart = (props: Props) => {
   ); // Default to first day of current month
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(tomorrow)); // Default to tomorrow
-  const [webclipsCounts, setWebclipsCounts] = useState<any>([]);
-  const [errorWebclipsCounts, setErrorWebclipsCounts] = useState<string | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
-
-  useEffect(() => {
-    fetchWebclipsCounts(
-      startDate,
-      endDate,
-      setIsLoading,
-      setWebclipsCounts,
-      setErrorWebclipsCounts
-    );
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
-
-  const sortedWebclipsCounts = webclipsCounts.sort((a: any, b: any) => {
-    const dateA = new Date(a.properties.Date.date.start);
-    const dateB = new Date(b.properties.Date.date.start);
-    return dateA.getTime() - dateB.getTime();
-  });
 
   // Add state for the popover
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -75,6 +53,19 @@ const WebClipsCountChart = (props: Props) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const {
+    data: webclipsCounts = [],
+    isLoading,
+    error: errorWebclipsCounts,
+    refetch,
+  } = useWebclipsCounts(startDate, endDate);
+
+  const sortedWebclipsCounts = webclipsCounts.sort((a: any, b: any) => {
+    const dateA = new Date(a.properties.Date.date.start);
+    const dateB = new Date(b.properties.Date.date.start);
+    return dateA.getTime() - dateB.getTime();
+  });
 
   const { xAxis, yAxis } = calculateXandYAxis(sortedWebclipsCounts, startDate);
 
@@ -148,7 +139,7 @@ const WebClipsCountChart = (props: Props) => {
       {/* Date pickers + titles */}
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <div className="mb-4 flex justify-between items-center px-0">
-          <h2 className="text-sm font-semibold">Weight Tracking</h2>
+          <h2 className="text-sm font-semibold">Web Clips Count</h2>
           <div className="flex gap-2">
             <Button
               variant="contained"
@@ -200,9 +191,7 @@ const WebClipsCountChart = (props: Props) => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => {
-                setReloadCount(reloadCount + 1);
-              }}
+              onClick={() => refetch()}
               sx={{
                 minWidth: "24px",
                 width: "24px",
@@ -210,7 +199,7 @@ const WebClipsCountChart = (props: Props) => {
                 padding: 0,
               }}
             >
-              <RotateLeftIcon />
+              <RotateLeftIcon sx={{ fontSize: 16 }} />
             </Button>
           </div>
         </div>
@@ -276,21 +265,19 @@ const WebClipsCountChart = (props: Props) => {
               }}
             />
             <YAxis
-              domain={[73, "auto"]}
+              domain={[0, "auto"]}
               dx={-5}
               tick={{ fontSize: 12, fontFamily: "monospace" }}
-              interval={0}
+              interval={1}
               width={30}
               allowDecimals={false}
               ticks={Array.from(
                 {
                   length: Math.ceil(
-                    Math.max(...webclipsData.map((d: any) => d.uv || 0)) -
-                      73 +
-                      1
+                    Math.max(...webclipsData.map((d: any) => d.uv || 0)) / 2 + 1
                   ),
                 },
-                (_, i) => 73 + i
+                (_, i) => i * 2
               )}
             />
             <Tooltip
@@ -300,10 +287,10 @@ const WebClipsCountChart = (props: Props) => {
             {Array.from(
               {
                 length: Math.ceil(
-                  Math.max(...webclipsData.map((d: any) => d.uv || 0)) - 73 + 1
+                  Math.max(...webclipsData.map((d: any) => d.uv || 0)) / 2 + 1
                 ),
               },
-              (_, i) => 73 + i
+              (_, i) => i * 2
             ).map((value) => (
               <ReferenceLine
                 key={value}
@@ -323,7 +310,7 @@ const WebClipsCountChart = (props: Props) => {
               type="monotone"
               dataKey="uv"
               stroke="blue"
-              name="Target Line"
+              name="Web Clips Count"
               isAnimationActive={false}
               dot={{ r: 2, fill: "#2E7D32" }}
             />
@@ -344,6 +331,7 @@ const WebClipsCountChart = (props: Props) => {
 };
 
 export default WebClipsCountChart;
+
 //#region ======================= Helper Functions =========================
 
 const calculateXandYAxis = (sortedWebclipsCounts: any, startDate: any) => {
