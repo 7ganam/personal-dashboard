@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ComposedChart,
   Line,
@@ -10,7 +10,6 @@ import {
   ResponsiveContainer,
   ReferenceLine,
   Cell,
-  Area,
 } from "recharts";
 import { timeFormat } from "d3-time-format";
 
@@ -21,16 +20,13 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Button, Popover } from "@mui/material";
-import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDateFromIsoString, formatDateToYYYYMMDD } from "../utils/utils";
-import { fetchWorkData } from "../apiRequests/work-requests";
+import { useWorkData } from "../apiRequests/work-requests";
 
 type Props = { workTarget: number };
 
 const WorkChart = (props: Props) => {
-  //#region =============================fetching data==================================
-
   // Get first day of current month
   const firstDayOfMonth = new Date();
   firstDayOfMonth.setDate(1);
@@ -46,10 +42,6 @@ const WorkChart = (props: Props) => {
   ); // Default to first day of current month
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(today)); // Default to tomorrow
-  const [work, setWork] = useState<any>([]);
-  const [errorWork, setErrorWork] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [reloadCount, setReloadCount] = useState(0);
 
   // Add state for the popover
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -63,12 +55,8 @@ const WorkChart = (props: Props) => {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    fetchWorkData(startDate, endDate, setIsLoading, setWork, setErrorWork);
-  }, [startDate, endDate, reloadCount]); // Re-fetch when dates change
-  //#endregion
-
-  //#region =============================prepare graph data=============================
+  // Use React Query hook
+  const { data: work = [], isLoading } = useWorkData(startDate, endDate);
 
   const sortedWorkData = work.sort((a: any, b: any) => {
     const dateA = new Date(a.properties.Date.date.start);
@@ -168,9 +156,6 @@ const WorkChart = (props: Props) => {
 
     return referenceLines;
   };
-  //#endregion
-
-  //#region =============================render=========================================
 
   return (
     <div className="w-full h-full relative">
@@ -243,21 +228,6 @@ const WorkChart = (props: Props) => {
                 />
               </div>
             </Popover>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                setReloadCount(reloadCount + 1);
-              }}
-              sx={{
-                minWidth: "24px",
-                width: "24px",
-                height: "24px",
-                padding: 0,
-              }}
-            >
-              <RotateLeftIcon />
-            </Button>
           </div>
         </div>
       </LocalizationProvider>
@@ -374,7 +344,6 @@ const WorkChart = (props: Props) => {
       </div>
     </div>
   );
-  //#endregion
 };
 
 //#region ===============================Helper Functions===============================
