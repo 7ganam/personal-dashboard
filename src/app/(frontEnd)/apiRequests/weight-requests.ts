@@ -43,8 +43,6 @@ export const useWeightData = (startDate: string, endDate: string) => {
     staleTime: Infinity, // Data will never become stale automatically
     gcTime: 24 * 60 * 60 * 1000, // Keep data in cache for 24 hours
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    retry: 1, // Only retry once on failure
-    retryDelay: 1000, // Wait 1 second before retrying
   });
 };
 //#endregion ======================================================================

@@ -1,21 +1,18 @@
 import { useDietData } from "@/app/(frontEnd)/apiRequests/diet-requests";
 import React, { useState } from "react";
 import CaloriesBar from "./CaloriesBar";
-import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
+import {
+  getYesterdayDate,
+  getTomorrowDate,
+} from "@/app/(frontEnd)/utils/utils";
 
 type Props = {};
 
 function CaloriesBarContainer({}: Props) {
   //#region ======================= fetch diet data =========================
-  // Get todays date
-  const todayDate = new Date();
 
-  // Get tomorrow's date
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const [startDate] = useState(formatDateFromDateObject(todayDate));
-  const [endDate] = useState(formatDateFromDateObject(tomorrow));
+  const [startDate] = useState(getYesterdayDate());
+  const [endDate] = useState(getTomorrowDate());
 
   const { data: dietData = [] } = useDietData(startDate, endDate);
 

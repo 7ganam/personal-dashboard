@@ -29,9 +29,9 @@ type Props = { caloriesLimit: number };
 
 const DietChart = (props: Props) => {
   //#region ======================= fetch diet data =========================
-  // Get first day of current month
-  const firstDayOfMonth = new Date();
-  firstDayOfMonth.setDate(1);
+  // Get date from one month ago
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
   const today = new Date();
 
@@ -39,9 +39,7 @@ const DietChart = (props: Props) => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const [startDate, setStartDate] = useState(
-    formatDateToYYYYMMDD(firstDayOfMonth)
-  ); // Default to first day of current month
+  const [startDate, setStartDate] = useState(formatDateToYYYYMMDD(oneMonthAgo)); // Default to one month ago
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(today)); // Default to today
   const [reloadCount, setReloadCount] = useState(0);

@@ -28,17 +28,15 @@ type Props = {
 };
 
 const WeightChart = (props: Props) => {
-  // Get first day of current month
-  const firstDayOfMonth = new Date();
-  firstDayOfMonth.setDate(1);
+  // Get date from one month ago
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
   // Get tomorrow's date
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const [startDate, setStartDate] = useState(
-    formatDateToYYYYMMDD(firstDayOfMonth)
-  ); // Default to first day of current month
+  const [startDate, setStartDate] = useState(formatDateToYYYYMMDD(oneMonthAgo)); // Default to one month ago
 
   const [endDate, setEndDate] = useState(formatDateToYYYYMMDD(tomorrow)); // Default to tomorrow
 
