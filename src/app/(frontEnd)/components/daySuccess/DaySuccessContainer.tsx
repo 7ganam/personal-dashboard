@@ -9,6 +9,7 @@ import {
   caloriesInADay,
   tStrikeStateInADay,
   sportsStrikeStateInADay,
+  formatDateFromDateObject,
 } from "../../utils/utils";
 import { useSleepData } from "../../apiRequests/sleep-requests";
 import { useTStrikeData } from "../../apiRequests/t-requests";
@@ -22,7 +23,12 @@ function DaySuccessContainer({}: Props) {
   const oneMonthAgo = getOneMonthAgoDate();
   const today = getTodayDate();
 
-  const [startDate, setStartDate] = useState(oneMonthAgo); // Default to one month ago
+  //get the dat of 3 months ago
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  const threeMonthsAgoFormatted = formatDateFromDateObject(threeMonthsAgo);
+
+  const [startDate, setStartDate] = useState(threeMonthsAgoFormatted); // Default to one month ago
   const [endDate, setEndDate] = useState(today); // Default to today
 
   const { data: dietData = [] } = useDietData(startDate, endDate);
