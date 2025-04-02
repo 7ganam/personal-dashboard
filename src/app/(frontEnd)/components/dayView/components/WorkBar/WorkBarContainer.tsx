@@ -1,8 +1,11 @@
 import { useWorkData } from "@/app/(frontEnd)/apiRequests/work-requests";
-import { workDurationInDate } from "./helpers";
 import React, { useState } from "react";
 import WorkBar from "./WorkBar";
-import { getTomorrowDate, getTodayDate } from "@/app/(frontEnd)/utils/utils";
+import {
+  getTomorrowDate,
+  getTodayDate,
+  durationInDate,
+} from "@/app/(frontEnd)/utils/utils";
 
 type Props = {};
 
@@ -19,8 +22,7 @@ function WorkBarContainer({}: Props) {
     refetch,
   } = useWorkData(startDate, endDate);
 
-  const workHours = workDurationInDate(workData, startDate);
-  console.log({ workData, workHours });
+  const workHours = durationInDate(workData, startDate);
 
   return (
     <div>

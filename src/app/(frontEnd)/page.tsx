@@ -11,6 +11,7 @@ import DayViewCard from "./components/dayView/DayViewCard";
 import SportsStrike from "./components/SportsStrike/SportsStrike";
 import RunningChart from "./components/RunningChart";
 import WebClipsCountChart from "./components/WebClipsCountChart";
+import DaySuccessContainer from "./components/DaySuccess/DaySuccessContainer";
 export default function NotionPage() {
   //#region =======================fetch the thoughts==========================
   const [thoughts, setThoughts] = useState<
@@ -64,6 +65,7 @@ export default function NotionPage() {
   //#region =======================Render======================================
   return (
     <div className="flex w-full min-h-screen flex-col min-[1200px]:flex-row">
+      <DaySuccessContainer />
       {/* Left Column - 1/4 width */}
       <div className="w-full min-[1200px]:w-1/4 p-4">
         <div className="w-full p-10 bg-gray-100 rounded-lg shadow-md border-2 border-gray-200">

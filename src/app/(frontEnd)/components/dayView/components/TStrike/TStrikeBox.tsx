@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useTStrikeData } from "@/app/(frontEnd)/apiRequests/t-requests";
 import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
-import { workDurationInDate } from "../WorkBar/helpers";
 
 type Props = {};
 

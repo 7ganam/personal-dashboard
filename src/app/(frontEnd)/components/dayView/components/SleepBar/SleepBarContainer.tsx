@@ -1,5 +1,5 @@
 import { useSleepData } from "@/app/(frontEnd)/apiRequests/sleep-requests";
-import { sleepDurationInDate } from "./helpers";
+import { durationInDate } from "@/app/(frontEnd)/utils/utils";
 import React, { useState } from "react";
 
 import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
@@ -24,13 +24,13 @@ function SleepBarContainer({}: Props) {
 
   const { data: sleepData = [] } = useSleepData(startDate, endDate);
 
-  const sleepHours = sleepDurationInDate(sleepData, startDate);
+  const sleepHours = durationInDate(sleepData, startDate);
 
   return (
     <div>
       <SleepBar
         targetSleepHours={8}
-        currentSleepHours={sleepDurationInDate(sleepData, todayFormatted)}
+        currentSleepHours={durationInDate(sleepData, todayFormatted)}
       />
     </div>
   );

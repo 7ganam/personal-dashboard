@@ -1,6 +1,9 @@
 import { useSportsStrikeData } from "@/app/(frontEnd)/apiRequests/sports-requests";
 import React, { useState } from "react";
-import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
+import {
+  formatDateFromDateObject,
+  sportsStrikeStateInADay,
+} from "@/app/(frontEnd)/utils/utils";
 
 type Props = {};
 
@@ -12,9 +15,15 @@ function SportsStrikeBox({}: Props) {
   const [startDate] = useState(formatDateFromDateObject(today));
   const [endDate] = useState(formatDateFromDateObject(today));
 
-  const { data: workData = [] } = useSportsStrikeData(startDate, endDate);
+  const { data: sportsStrikeData = [] } = useSportsStrikeData(
+    startDate,
+    endDate
+  );
 
-  const todayTStrikeState = strikeState(workData);
+  const todayTStrikeState = sportsStrikeStateInADay(
+    todayFormatted,
+    sportsStrikeData
+  );
 
   const strikeStateColor = {
     "full-success": "#22C55E",
@@ -33,15 +42,5 @@ function SportsStrikeBox({}: Props) {
     </div>
   );
 }
-
-const strikeState = (sportsData: any): "full-success" | "failure" => {
-  let strikeState = "failure" as "full-success" | "failure";
-
-  if (sportsData.length > 0) {
-    strikeState = "full-success";
-  }
-
-  return strikeState;
-};
 
 export default SportsStrikeBox;

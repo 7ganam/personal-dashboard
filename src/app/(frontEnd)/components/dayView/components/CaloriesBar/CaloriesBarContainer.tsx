@@ -4,6 +4,7 @@ import CaloriesBar from "./CaloriesBar";
 import {
   getYesterdayDate,
   getTomorrowDate,
+  caloriesInADay,
 } from "@/app/(frontEnd)/utils/utils";
 
 type Props = {};
@@ -22,10 +23,7 @@ function CaloriesBarContainer({}: Props) {
     <div>
       <CaloriesBar
         targetCalories={1800}
-        currentCalories={dietData.reduce(
-          (acc: number, item: any) => acc + item.properties.Calories.number,
-          0
-        )}
+        currentCalories={caloriesInADay(startDate, dietData)}
       />
     </div>
   );
