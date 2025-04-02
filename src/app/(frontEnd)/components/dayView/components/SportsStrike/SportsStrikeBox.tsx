@@ -20,21 +20,20 @@ function SportsStrikeBox({}: Props) {
     endDate
   );
 
-  const todayTStrikeState = sportsStrikeStateInADay(
+  const todaySportsStrikeState = sportsStrikeStateInADay(
     todayFormatted,
     sportsStrikeData
   );
 
   const strikeStateColor = {
-    "full-success": "#22C55E",
-    "sub-success": "#DCFCE7",
+    success: "#22C55E",
     failure: "red",
   };
 
   return (
     <div
-      className={` min-h-10 min-w-10 bg-gray-200 rounded-md flex items-center justify-center w-full h-full p-4 text-center ${strikeStateColor[todayTStrikeState]}`}
-      style={{ backgroundColor: strikeStateColor[todayTStrikeState] }}
+      className={` min-h-10 min-w-10 bg-gray-200 rounded-md flex items-center justify-center w-full h-full p-4 text-center ${strikeStateColor[todaySportsStrikeState]}`}
+      style={{ backgroundColor: strikeStateColor[todaySportsStrikeState] }}
     >
       <div className="flex items-center justify-center text-sm text-white font-bold">
         Sports strike
