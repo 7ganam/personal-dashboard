@@ -6,6 +6,7 @@ import {
   getTodayDate,
   durationInDate,
 } from "@/app/(frontEnd)/utils/utils";
+import { CircularProgress } from "@mui/material";
 
 type Props = {};
 
@@ -25,7 +26,12 @@ function WorkBarContainer({}: Props) {
   const workHours = durationInDate(workData, startDate);
 
   return (
-    <div>
+    <div className="relative">
+      {isLoading && (
+        <div className="absolute top-1 left-2 w-full h-full flex ">
+          <CircularProgress size={10} sx={{ color: "blue" }} />
+        </div>
+      )}
       <WorkBar targetWorkHours={8} currentWorkHours={workHours} />
     </div>
   );

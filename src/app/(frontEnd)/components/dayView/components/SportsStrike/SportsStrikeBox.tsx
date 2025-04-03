@@ -4,7 +4,7 @@ import {
   formatDateFromDateObject,
   sportsStrikeStateInADay,
 } from "@/app/(frontEnd)/utils/utils";
-
+import { CircularProgress } from "@mui/material";
 type Props = {};
 
 function SportsStrikeBox({}: Props) {
@@ -15,7 +15,7 @@ function SportsStrikeBox({}: Props) {
   const [startDate] = useState(formatDateFromDateObject(today));
   const [endDate] = useState(formatDateFromDateObject(today));
 
-  const { data: sportsStrikeData = [] } = useSportsStrikeData(
+  const { data: sportsStrikeData = [], isLoading } = useSportsStrikeData(
     startDate,
     endDate
   );
@@ -32,9 +32,14 @@ function SportsStrikeBox({}: Props) {
 
   return (
     <div
-      className={` min-h-10 min-w-10 bg-gray-200 rounded-md flex items-center justify-center w-full h-full p-4 text-center ${strikeStateColor[todaySportsStrikeState]}`}
+      className={` min-h-10 min-w-10 bg-gray-200 rounded-md flex items-center justify-center w-full h-full p-4 text-center relative ${strikeStateColor[todaySportsStrikeState]}`}
       style={{ backgroundColor: strikeStateColor[todaySportsStrikeState] }}
     >
+      {isLoading && (
+        <div className="absolute top-2 left-2 w-full h-full flex ">
+          <CircularProgress size={10} sx={{ color: "blue" }} />
+        </div>
+      )}
       <div className="flex items-center justify-center text-sm text-white font-bold">
         Sports strike
       </div>

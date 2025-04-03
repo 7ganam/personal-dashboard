@@ -4,6 +4,7 @@ import React, { useState } from "react";
 
 import { formatDateFromDateObject } from "@/app/(frontEnd)/utils/utils";
 import SleepBar from "./SleepBar";
+import { CircularProgress } from "@mui/material";
 
 type Props = {};
 
@@ -22,12 +23,17 @@ function SleepBarContainer({}: Props) {
   const [startDate] = useState(formatDateFromDateObject(yesterday));
   const [endDate] = useState(formatDateFromDateObject(tomorrow));
 
-  const { data: sleepData = [] } = useSleepData(startDate, endDate);
+  const { data: sleepData = [], isLoading } = useSleepData(startDate, endDate);
 
   const sleepHours = durationInDate(sleepData, startDate);
 
   return (
-    <div>
+    <div className="relative">
+      {isLoading && (
+        <div className="absolute top-1 left-2 w-full h-full flex ">
+          <CircularProgress size={10} sx={{ color: "blue" }} />
+        </div>
+      )}
       <SleepBar
         targetSleepHours={8}
         currentSleepHours={durationInDate(sleepData, todayFormatted)}
