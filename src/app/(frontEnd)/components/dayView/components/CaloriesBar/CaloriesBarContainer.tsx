@@ -4,6 +4,7 @@ import CaloriesBar from "./CaloriesBar";
 import {
   getYesterdayDate,
   getTomorrowDate,
+  getTodayDate,
   caloriesInADay,
 } from "@/app/(frontEnd)/utils/utils";
 
@@ -12,7 +13,7 @@ type Props = {};
 function CaloriesBarContainer({}: Props) {
   //#region ======================= fetch diet data =========================
 
-  const [startDate] = useState(getYesterdayDate());
+  const [startDate] = useState(getTodayDate());
   const [endDate] = useState(getTomorrowDate());
 
   const { data: dietData = [] } = useDietData(startDate, endDate);
